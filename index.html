@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Aquestoria – the fantasy student planner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Nunito:wght@400;700&family=Macondo+Swash+Caps&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <h1>📖 Aquestoria</h1>
+      <nav aria-label="Main">
+        <button data-view="dashboard">Dashboard</button>
+        <button data-view="board">Quest Board</button>
+        <button data-view="calendar">Calendar</button>
+        <button data-view="shop">Shop</button>
+        <button data-view="import">Import</button>
+        <button data-view="profile">Collection</button>
+      </nav>
+      <button
+        class="purse"
+        data-view="shop"
+        title="Gold: earn it by completing quests, spend it in the Shop on characters and themes"
+      >
+        🪙 <span id="gold">0</span> Gold
+      </button>
+      <button
+        class="purse"
+        id="acct-btn"
+        type="button"
+        title="Account, free-trial time and reminders"
+      >
+        ⚙ Settings
+      </button>
+    </header>
+    <div id="trial-banner" role="status" hidden>
+      ⏳ <span id="tb-text"></span>
+      <button type="button" id="tb-unlock" class="mini primary">
+        Unlock forever
+      </button>
+    </div>
+
+    <main>
+      <section id="view-dashboard" class="view"></section>
+      <section id="view-board" class="view"></section>
+      <section id="view-calendar" class="view"></section>
+      <section id="view-shop" class="view"></section>
+      <section id="view-profile" class="view"></section>
+      <section id="view-import" class="view">
+        <h2>Import</h2>
+        <p class="sub">
+          Bring assignments into Aquestoria from a syllabus or a calendar file.
+        </p>
+        <div class="card">
+          <h3>1. Choose a class</h3>
+          <p>
+            Click to pick a class, type to search, or add a new one right from
+            the list. Use ✎ to rename the selected class.
+          </p>
+          <div class="fld">
+            <span>Class</span>
+            <div
+              data-combo-mount="imp-class"
+              data-attrs='aria-label="Class"'
+            ></div>
+          </div>
+        </div>
+        <h3>2. Upload</h3>
+        <p id="imp-hint" role="status"></p>
+        <div class="grid">
+          <div class="card">
+            <h3>📅 Calendar file (.ics)</h3>
+            <p>
+              Export your calendar from Brightspace (or any calendar app) and
+              upload the .ics file. The class above is used when the file
+              doesn't name one.
+            </p>
+            <input
+              type="file"
+              id="imp-ics"
+              accept=".ics"
+              aria-label="Upload .ics calendar file"
+            />
+          </div>
+          <div class="card">
+            <h3>📜 Syllabus</h3>
+            <p>
+              Upload a PDF or .txt, or paste the schedule text. Everything is
+              added to the class chosen above.
+            </p>
+            <input
+              type="file"
+              id="imp-syl"
+              accept=".pdf,.txt"
+              aria-label="Upload syllabus PDF or text file"
+            />
+            <label
+              >…or paste syllabus text
+              <textarea id="imp-text" rows="4"></textarea>
+            </label>
+            <button id="imp-find" data-act="import-text">
+              Find dates in pasted text
+            </button>
+          </div>
+        </div>
+        <div id="import-review"></div>
+      </section>
+    </main>
+
+    <!-- Add / edit quest form -->
+    <dialog id="quest-dialog">
+      <form id="quest-form" method="dialog">
+        <h2 id="quest-form-title">New quest</h2>
+        <input type="hidden" id="q-id" />
+        <label
+          >Assignment name * <input id="q-name" required maxlength="80"
+        /></label>
+        <div class="fld">
+          <span>Course / class (optional)</span>
+          <div
+            data-combo-mount="q-course"
+            data-attrs='aria-label="Course or class"'
+          ></div>
+        </div>
+        <label>Due date * <input id="q-due" type="date" required /></label>
+        <label
+          >Due time (optional – places it on the Day timeline)
+          <input id="q-time" type="time"
+        /></label>
+        <label
+          >Reward (Gold) *
+          <input
+            id="q-reward"
+            type="number"
+            min="1"
+            max="1000"
+            value="50"
+            required
+        /></label>
+        <label
+          >Description (optional)
+          <textarea id="q-desc" rows="3" maxlength="300"></textarea>
+        </label>
+        <div class="row">
+          <button type="submit" class="primary">Save quest</button>
+          <button type="button" id="q-cancel">Cancel</button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- Quest details (opened from calendar) -->
+    <dialog id="detail-dialog">
+      <div id="detail-body"></div>
+      <div class="row"><button id="detail-close">Close</button></div>
+    </dialog>
+
+    <footer style="text-align: center; font-size: 0.8rem; padding: 1rem">
+      Paper art by LCSkeleton / Robin Norkum
+    </footer>
+    <dialog id="block-dialog">
+      <form id="block-form" method="dialog">
+        <h2>New time block</h2>
+        <label
+          >What are you doing? *
+          <input
+            id="b-title"
+            required
+            maxlength="60"
+            placeholder="Study for midterm"
+        /></label>
+        <label>Date * <input id="b-date" type="date" required /></label>
+        <label>Start * <input id="b-start" type="time" required /></label>
+        <label>End (optional) <input id="b-end" type="time" /></label>
+        <div class="row">
+          <button type="submit" class="primary">Save block</button
+          ><button type="button" id="b-cancel">Cancel</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="class-dialog">
+      <form id="class-form">
+        <h2>Edit class</h2>
+        <label>Name <input id="class-name" required maxlength="40" /></label>
+        <p id="class-err" class="err" role="alert"></p>
+        <div class="row">
+          <button type="button" id="class-delete" class="danger">
+            Delete class</button
+          ><span style="flex: 1"></span
+          ><button type="button" id="class-cancel">Cancel</button
+          ><button type="submit" class="primary">Save</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="clear-dialog">
+      <form id="clear-form">
+        <h2>Clear Calendar?</h2>
+        <p>
+          This will permanently remove all assignments from your calendar. Your
+          classes, Gold, characters, themes, and other settings will not be
+          affected.
+        </p>
+        <label
+          >Type <b>CLEAR</b> to confirm
+          <input id="clear-input" autocomplete="off" spellcheck="false"
+        /></label>
+        <div class="row">
+          <button type="button" id="clear-cancel">Cancel</button
+          ><button type="submit" id="clear-yes" class="danger" disabled>
+            Clear Calendar
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="confirm-dialog">
+      <h2 id="confirm-title">Are you sure?</h2>
+      <p id="confirm-msg"></p>
+      <div class="row">
+        <button class="danger" id="confirm-yes">Yes, do it</button
+        ><button id="confirm-no">Cancel</button>
+      </div>
+    </dialog>
+
+    <!-- ===== Account screens (shown only when config.js has Supabase keys) ===== -->
+    <div
+      id="auth-screen"
+      class="gate"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="auth-title"
+      hidden
+    >
+      <form id="auth-form" class="card gate-card">
+        <h1 id="auth-title">📖 Aquestoria</h1>
+        <p class="sub">
+          Turn schoolwork into quests. <b>168 free hours of use</b> (only time
+          you actually use it counts), then a one-time
+          <b class="price-txt">$6.99</b> for permanent access.
+        </p>
+        <div class="seg" role="group" aria-label="Sign up or log in">
+          <button type="button" data-auth-tab="signup">Sign up</button
+          ><button type="button" data-auth-tab="login">Log in</button>
+        </div>
+        <label class="fld" id="auth-email-wrap"
+          ><span>Email</span
+          ><input id="auth-email" type="email" required autocomplete="email"
+        /></label>
+        <label class="fld"
+          ><span id="auth-pass-label">Password (8+ characters)</span
+          ><input
+            id="auth-pass"
+            type="password"
+            required
+            minlength="8"
+            autocomplete="new-password"
+        /></label>
+        <p id="auth-msg" class="err" role="alert"></p>
+        <button id="auth-submit" class="primary" type="submit">
+          Create account
+        </button>
+        <button type="button" id="auth-forgot" class="linklike" hidden>
+          Forgot password?
+        </button>
+      </form>
+    </div>
+    <div
+      id="paywall"
+      class="gate"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="pw-title"
+      hidden
+    >
+      <div class="card gate-card">
+        <h2 id="pw-title">Your 168 free hours are used up</h2>
+        <p>
+          Your quests, Gold and cosmetics are safe and waiting. Unlock
+          Aquestoria forever with a
+          <b>one-time <span class="price-txt">$6.99</span></b> payment, no
+          subscription.
+        </p>
+        <div class="row">
+          <button id="pw-pay" class="primary">Unlock forever</button
+          ><button id="pw-check">I've paid, check again</button>
+        </div>
+        <p id="pw-msg" class="err" role="status"></p>
+        <div class="row">
+          <button id="pw-export">Download my data</button
+          ><button id="pw-logout" class="linklike">Log out</button>
+        </div>
+      </div>
+    </div>
+    <dialog id="account-dialog">
+      <h2>Settings</h2>
+      <section id="acct-cloud">
+        <h3>Account</h3>
+        <p><b id="acct-email"></b></p>
+        <p id="acct-status"></p>
+        <p><small id="acct-sync"></small></p>
+        <div class="row">
+          <button id="acct-upgrade" class="primary">Unlock forever</button
+          ><button id="acct-refresh">Refresh status</button>
+        </div>
+      </section>
+      <section>
+        <h3>🔔 Due-date reminders</h3>
+        <label class="chk"
+          ><input type="checkbox" id="nt-enabled" /> Turn on reminders</label
+        >
+        <div id="nt-opts">
+          <label class="chk"
+            ><input type="checkbox" id="nt-morning" /> Morning of the due date
+            (8:00 AM)</label
+          >
+          <label class="chk"
+            ><input type="checkbox" id="nt-dayBefore" /> The evening before
+            (6:00 PM)</label
+          >
+          <label class="chk"
+            ><input type="checkbox" id="nt-hourBefore" /> One hour before a
+            quest with a due time</label
+          >
+        </div>
+        <p><small id="nt-help"></small></p>
+        <button type="button" id="nt-test">Send a test reminder</button>
+      </section>
+      <div class="row">
+        <button id="acct-export">Download my data</button
+        ><button id="acct-logout" class="danger">Log out</button
+        ><button id="acct-close" class="primary">Close</button>
+      </div>
+    </dialog>
+
+    <div id="toast" role="status" aria-live="polite"></div>
+    <!-- pdf.js (reads syllabus PDFs). License: Apache 2.0, Mozilla -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <!-- Supabase client (accounts + cloud save). MIT license. -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+    <script src="account.js"></script>
+    <script src="notify.js"></script>
+  </body>
+</html>
