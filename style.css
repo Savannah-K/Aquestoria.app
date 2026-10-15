@@ -352,19 +352,32 @@ dialog textarea {
    ONE paper image is used for every card: assets/paper.png (credit: see CREDITS.md).
    border-image cuts the 96x96 paper into a 3x3 grid of 32px pieces: corners stay crisp,
    edges and middle stretch. Quest status is shown with the wax-seal pin color, not a different paper. */
+/* The board's colours come from the --board-* variables, which every theme sets (see "BOARD COLOURS" at the bottom). */
 #view-board {
-  --gold: #e0bd62;
-  color: #f4ead0;
-  border: 3px solid #c9a24b;
+  --gold: var(--board-head);
+  position: relative;
+  isolation: isolate;
+  color: var(--board-ink);
+  border: 3px solid var(--board-gold);
   border-radius: 10px;
   padding: 1.4rem;
   box-shadow:
-    inset 0 0 0 8px #173325,
-    inset 0 0 0 10px #c9a24b,
-    inset 0 0 70px #000b;
-  background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cpath d='M24 6c5 6 5 12 0 18-5-6-5-12 0-18zm0 18c5 6 5 12 0 18-5-6-5-12 0-18z' fill='%23c9a24b' fill-opacity='.13'/%3E%3C/svg%3E"),
-    radial-gradient(ellipse at top, #2f5e43, #173325);
+    inset 0 0 0 8px var(--board-b),
+    inset 0 0 0 10px var(--board-gold),
+    inset 0 0 70px var(--board-shadow);
+  background: radial-gradient(ellipse at top, var(--board-a), var(--board-b));
+}
+#view-board::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background: var(--board-gold);
+  opacity: 0.14;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cpath d='M24 6c5 6 5 12 0 18-5-6-5-12 0-18zm0 18c5 6 5 12 0 18-5-6-5-12 0-18z'/%3E%3C/svg%3E");
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cpath d='M24 6c5 6 5 12 0 18-5-6-5-12 0-18zm0 18c5 6 5 12 0 18-5-6-5-12 0-18z'/%3E%3C/svg%3E");
 }
 #view-board h2,
 #view-board .section-head h2 {
@@ -385,7 +398,7 @@ dialog textarea {
   content: "";
   flex: 1;
   height: 2px;
-  background: linear-gradient(90deg, transparent, #c9a24b);
+  background: linear-gradient(90deg, transparent, var(--board-gold));
 }
 #view-board > h2::after {
   transform: scaleX(-1);
@@ -472,9 +485,9 @@ dialog textarea {
   background: #8c2f2f22;
 }
 #view-board > .section-head .primary {
-  background: #c9a24b;
-  color: #2b1d12;
-  border-color: #c9a24b;
+  background: var(--board-gold);
+  color: var(--board-on-gold);
+  border-color: var(--board-gold);
 }
 @media (max-width: 600px) {
   #view-board .quest {
@@ -1207,9 +1220,9 @@ body[data-theme="goth"] {
 }
 /* selected range button must stand out on the dark board */
 #view-board .seg button[aria-pressed="true"] {
-  background: #e0bd62;
-  color: #2b1d12;
-  border-color: #e0bd62;
+  background: var(--board-gold);
+  color: var(--board-on-gold);
+  border-color: var(--board-gold);
   font-weight: 700;
 }
 
@@ -1290,4 +1303,93 @@ dialog section {
 }
 #acct-btn {
   margin-left: 0.3rem;
+}
+
+/* ===== BOARD COLOURS: each theme paints the Quest Board container too =====
+   a/b = board gradient (top/bottom) | gold = frame, lines, buttons | head = headings | ink = text | on-gold = text on gold buttons */
+:root,
+body[data-theme="default"] {
+  --board-a: #2f5e43;
+  --board-b: #173325;
+  --board-gold: #c9a24b;
+  --board-head: #e0bd62;
+  --board-ink: #f4ead0;
+  --board-on-gold: #2b1d12;
+  --board-shadow: #000b;
+}
+body[data-theme="forest"] {
+  --board-a: #4f8a5c;
+  --board-b: #2c5a3a;
+  --board-gold: #d9c27a;
+  --board-head: #f3e6b3;
+  --board-ink: #f1f7ec;
+  --board-on-gold: #2b2a14;
+  --board-shadow: #0008;
+}
+body[data-theme="castle"] {
+  --board-a: #3b4478;
+  --board-b: #1b1f3a;
+  --board-gold: #f2c75c;
+  --board-head: #f2c75c;
+  --board-ink: #eef0ff;
+  --board-on-gold: #232846;
+  --board-shadow: #000b;
+}
+body[data-theme="mushroom"] {
+  --board-a: #c9606a;
+  --board-b: #7d2a35;
+  --board-gold: #f0c7c0;
+  --board-head: #ffe3df;
+  --board-ink: #fff1ef;
+  --board-on-gold: #4a2326;
+  --board-shadow: #0009;
+}
+body[data-theme="library"] {
+  --board-a: #8a6a40;
+  --board-b: #4a3220;
+  --board-gold: #d9b873;
+  --board-head: #f0d9a8;
+  --board-ink: #f6ead2;
+  --board-on-gold: #2b1d12;
+  --board-shadow: #000a;
+}
+body[data-theme="parchment"] {
+  --board-a: #c4d1ad;
+  --board-b: #a3b18a;
+  --board-gold: #e08e79;
+  --board-head: #2c3531;
+  --board-ink: #2c3531;
+  --board-on-gold: #2c3531;
+  --board-shadow: #2c353133;
+}
+body[data-theme="pastel"] {
+  --board-a: #f1ebfb;
+  --board-b: #dccff2;
+  --board-gold: #b39ddb;
+  --board-head: #54408a;
+  --board-ink: #37474f;
+  --board-on-gold: #2b2438;
+  --board-shadow: #54408a33;
+}
+body[data-theme="goth"] {
+  --board-a: #2b2535;
+  --board-b: #121016;
+  --board-gold: #ffb74d;
+  --board-head: #80deea;
+  --board-ink: #f5f5f5;
+  --board-on-gold: #121016;
+  --board-shadow: #000;
+}
+/* the top bar of the four Shop themes follows their board colour too */
+body[data-theme="forest"] {
+  --bar: #2c5a3a;
+}
+body[data-theme="castle"] {
+  --bar: #1b1f3a;
+}
+body[data-theme="mushroom"] {
+  --bar: #7d2a35;
+}
+body[data-theme="library"] {
+  --bar: #4a3220;
 }
