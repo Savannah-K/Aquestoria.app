@@ -61,7 +61,7 @@ const FREE_THEMES = [
     swatch: ["#121016", "#80DEEA", "#FFB74D", "#F5F5F5"],
   },
 ];
-const DEFAULT_MASCOT = { art: "🥚", img: "" }; // shown when no character is equipped (also used in empty states)
+const DEFAULT_MASCOT = { art: "🪼", img: "" }; // shown when no character is equipped (also used in empty states)
 const artHTML = (item) => {
   item = item || DEFAULT_MASCOT;
   return item.img
@@ -99,53 +99,9 @@ let STORAGE_KEY = "questbook-v1"; // account.js switches this to a per-user key 
 let state; // filled in by loadState() at the very bottom, after all helpers exist
 
 function defaultState() {
-  const d = (n) => {
-    const x = new Date();
-    x.setDate(x.getDate() + n);
-    return toISO(x);
-  };
-  const q = (id, name, course, due, reward, description) => ({
-    id,
-    name,
-    course,
-    due,
-    reward,
-    description,
-    completed: false,
-    rewardPaid: false,
-    demo: true,
-  });
   return {
     gold: 0,
-    quests: [
-      {
-        ...q(
-          "demo1",
-          "Cost Analysis Worksheet",
-          "Business 101",
-          d(3),
-          50,
-          "Sample quest – delete me any time!",
-        ),
-        time: "14:00",
-      },
-      q(
-        "demo2",
-        "Chapter 4 Reading",
-        "Business 101",
-        d(7),
-        30,
-        "Sample quest.",
-      ),
-      q(
-        "demo3",
-        "Marketing Pitch Draft",
-        "Marketing",
-        d(-2),
-        80,
-        "Sample overdue quest.",
-      ),
-    ],
+    quests: [], // Sample quests removed
     notify: {
       enabled: false,
       morning: true,
@@ -154,7 +110,7 @@ function defaultState() {
     }, // due-date reminders (see notify.js)
     boardRange: "2w", // Quest Board window: "1w" | "2w" | "all"
     blocks: [], // time blocks planned in the Day view: {id,title,date,start,end}
-    classes: ["Business 101", "Marketing"], // class names; quests store the class name in quest.course
+    classes: [], // class names; quests store the class name in quest.course
     owned: { characters: [], themes: [] },
     equipped: { character: null, theme: null },
   };

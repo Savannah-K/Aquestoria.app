@@ -1400,24 +1400,24 @@ body[data-theme="library"] {
    To use another frame later: drop a PNG in assets/borders/ and change the url() in these variables. */
 :root {
   --fr-btn: url(Assets\btn-bronze.png);
-  --fr-card: url(Assets/card-bronze.png);
-  --fr-dialog: url(Assets/dialog-bronze.png);
-  --fr-nav: url(Assets/btn-gold.png);
+  --fr-card: url(Assets\card-bronze.png);
+  --fr-dialog: url(Assets\dialog-bronze.png);
+  --fr-nav: url(Assets\btn-gold.png);
 }
 body[data-theme="castle"],
 body[data-theme="goth"] {
-  --fr-btn: url(Assets/btn-gold.png);
-  --fr-card: url(Assets/card-gold.png);
-  --fr-dialog: url(Assets/dialog-gold.png);
+  --fr-btn: url(Assets\btn-gold.png);
+  --fr-card: url(Assets\card-gold.png);
+  --fr-dialog: url(Assets\dialog-gold.png);
 }
 body[data-theme="pastel"] {
-  --fr-btn: url(Assets/btn-violet.png);
-  --fr-card: url(Assets/card-violet.png);
-  --fr-dialog: url(Assets/dialog-violet.png);
-  --fr-nav: url(Assets/btn-violet.png);
+  --fr-btn: url(Assets\btn-violet.png);
+  --fr-card: url(Assets\card-violet.png);
+  --fr-dialog: url(Assets\dialog-violet.png);
+  --fr-nav: url(Assets\btn-violet.png);
 }
 body[data-theme="parchment"] {
-  --fr-nav: url(Assets/btn-bronze.png)
+  --fr-nav: url(Assets\btn-bronze.png)
     button: not(
       .chip,
       .daynum,
