@@ -10,6 +10,8 @@ Aquestoria works right now in **local mode** (no login, data stays in the browse
 4. **Authentication → Providers → Email:** while testing you can turn "Confirm email" off. Turn it back on before launch.
 5. **Project Settings → API:** copy the _Project URL_ and the _anon public_ key into `config.js`.
 
+> **Already ran `setup.sql` before?** Run it again. It is safe to re-run, and it adds the "delete my account" function.
+
 ## 2. Stripe (the one-time payment)
 
 1. Create a Stripe account → **Products →** add a product, price **$6.99, one-time**.
@@ -45,3 +47,7 @@ Any static host with **https** (Netlify, GitHub Pages, Cloudflare Pages). Notifi
 ## Reminders
 
 Reminders use browser notifications and appear while Aquestoria is open (in a tab, window or installed app). Reminders when the browser is closed (push or email) need a server job: a possible next step.
+
+## Deleting accounts
+
+Settings → "Delete my account and data…" (also on the paywall). The user must type DELETE. The database function `delete_my_account` removes their login, and their profile and saved planner are deleted with it automatically; this browser's saved copy is wiped too. Stripe still keeps its own payment records (it must, for tax/legal reasons), so say so in your Privacy Policy, and handle refunds in Stripe yourself.

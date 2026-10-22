@@ -240,7 +240,7 @@ function completeQuest(id) {
   if (!q.rewardPaid) {
     q.rewardPaid = true;
     state.gold += q.reward;
-    toast(`✨ QUEST COMPLETE! 🪙 +${q.reward} ${CURRENCY}`);
+    toast(` QUEST COMPLETE! 🪙 +${q.reward} ${CURRENCY}`);
   } else {
     toast("Quest completed again – reward was already collected.");
   }
@@ -407,7 +407,7 @@ function renderDashboard() {
       <p class="sub">Your day at a glance. Complete schoolwork → earn Gold → customize your world.</p></div></div>
     <div class="stats">
       <div class="card stat" title="Earn Gold by completing quests. Spend it in the Shop on characters and themes."><span>🪙 ${state.gold}</span>Gold<small>Earned by finishing quests</small><button class="mini" data-view="shop">Spend in Shop</button></div>
-      <div class="card stat"><span>⚔️ ${dueToday.length}</span>Due today</div>
+      <div class="card stat"><span> ${dueToday.length}</span>Due today</div>
       <div class="card stat ${overdue.length ? "bad" : ""}"><span>⚠️ ${overdue.length}</span>Overdue</div>
       <div class="card stat"><span>✅ ${done.length}/${total}</span>Completed<div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div></div>
     </div>
@@ -453,9 +453,9 @@ function renderBoard() {
   $("view-board").innerHTML = `
     <div class="section-head"><div><h2>Quest Board</h2><p class="sub">Every assignment as a quest card.</p></div><button class="primary" data-act="new">+ New quest</button></div>
     <div class="board-range"><span>Showing quests due:</span><div class="seg" role="group" aria-label="Quest board range">${range}</div></div>
-    <h2>⚔️ Active quests</h2>${cards(active, emptyState("The board is quiet…", later ? `Nothing due in this window. ${later} later quest${later > 1 ? "s are" : " is"} hidden: try "All".` : "No active quests. Add an assignment or import a syllabus to begin your adventure.", addBtns))}${active.length ? note(later, "later quest" + (later > 1 ? "s" : "")) : ""}
-    <h2>⚠️ Overdue quests</h2>${cards(overdue, emptyState("No overdue quests", "The dragon sleeps. Keep it that way!"))}
-    <h2>📜 Completed quests</h2>${cards(done, emptyState("No completed quests yet", "Finish a quest to earn Gold for the Shop."))}${done.length ? note(doneAll.length - done.length, "older completed quest" + (doneAll.length - done.length > 1 ? "s" : "")) : ""}`;
+    <h2> Active quests</h2>${cards(active, emptyState("The board is quiet…", later ? `Nothing due in this window. ${later} later quest${later > 1 ? "s are" : " is"} hidden: try "All".` : "No active quests. Add an assignment or import a syllabus to begin your adventure.", addBtns))}${active.length ? note(later, "later quest" + (later > 1 ? "s" : "")) : ""}
+    <h2> Overdue quests</h2>${cards(overdue, emptyState("No overdue quests", "The dragon sleeps. Keep it that way!"))}
+    <h2> Completed quests</h2>${cards(done, emptyState("No completed quests yet", "Finish a quest to earn Gold for the Shop."))}${done.length ? note(doneAll.length - done.length, "older completed quest" + (doneAll.length - done.length > 1 ? "s" : "")) : ""}`;
 }
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const addDays = (d, n) => {
@@ -492,13 +492,13 @@ function renderToday() {
       .filter((b) => b.date === iso)
       .map((b) => ({
         t: b.start,
-        html: `🕒 <b>${fmtTime(b.start)}</b> ${esc(b.title)}`,
+        html: ` <b>${fmtTime(b.start)}</b> ${esc(b.title)}`,
       })),
     ...state.quests
       .filter((q) => q.due === iso && q.time)
       .map((q) => ({
         t: q.time,
-        html: `⚔️ <b>${fmtTime(q.time)}</b> ${esc(q.name)} <small>due</small>`,
+        html: ` <b>${fmtTime(q.time)}</b> ${esc(q.name)} <small>due</small>`,
       })),
   ].sort((a, b) => a.t.localeCompare(b.t));
   const todo = (

@@ -1394,70 +1394,10 @@ body[data-theme="library"] {
   --bar: #4a3220;
 }
 
-/* ===== PIXEL BORDERS (Kenney "Fantasy UI Borders", CC0) on buttons, cards and dialogs =====
-   The frame images are border-image 9-slices: corners stay sharp, edges stretch. Buttons stay real <button>s.
-   Frame colours come from variables so every theme can pick a tint: gold (dark themes), bronze (light themes), violet (pastel).
-   To use another frame later: drop a PNG in assets/borders/ and change the url() in these variables. */
-:root {
-  --fr-btn: url(Assets\btn-bronze.png);
-  --fr-card: url(Assets\card-bronze.png);
-  --fr-dialog: url(Assets\dialog-bronze.png);
-  --fr-nav: url(Assets\btn-gold.png);
+.danger-text {
+  color: var(--danger);
 }
-body[data-theme="castle"],
-body[data-theme="goth"] {
-  --fr-btn: url(Assets\btn-gold.png);
-  --fr-card: url(Assets\card-gold.png);
-  --fr-dialog: url(Assets\dialog-gold.png);
-}
-body[data-theme="pastel"] {
-  --fr-btn: url(Assets\btn-violet.png);
-  --fr-card: url(Assets\card-violet.png);
-  --fr-dialog: url(Assets\dialog-violet.png);
-  --fr-nav: url(Assets\btn-violet.png);
-}
-body[data-theme="parchment"] {
-  --fr-nav: url(Assets\btn-bronze.png)
-    button: not(
-      .chip,
-      .daynum,
-      .tl-hour,
-      .tl-ev,
-      .allday-item,
-      .combo-edit,
-      .mini,
-      .check,
-      .linklike,
-      .seg button,
-      .pal
-    ){border: 9px
-    solid transparent;border-image: var(--fr-btn) 9 / 9px
-    stretch;border-radius: 0;image-rendering: pixelated; padding: 0.02em
-    .4em;background-clip: border-box}
-    button: not(
-      .chip,
-      .daynum,
-      .tl-hour,
-      .tl-ev,
-      .allday-item,
-      .combo-edit,
-      .mini,
-      .check,
-      .linklike,
-      .seg button,
-      .pal
-    ): hover: not(: disabled){filter: brightness(1.08)}
-    .topbar button: not(.mini){border-image-source: var(--fr-nav)
-    ;padding: 0.02em 0.3em} .card{border: 14px solid
-    transparent;border-image: var(--fr-card) 14 / 14px
-    stretch;border-radius: 0;image-rendering: pixelated;background-clip:
-    border-box;
-    box-shadow: 4px 5px 0 #0003;padding: 0.3rem 0.5rem} dialog{border: 16px
-    solid transparent;border-image: var(--fr-dialog) 16 / 16px
-    stretch;border-radius: 0;image-rendering: pixelated;background-clip:
-    border-box;box-shadow: 6px
-    8px 0 #0005} .topbar{gap: 0.4rem 0.8rem}.topbar nav{gap: 0.3rem}.topbar
-    h1{font-size: 1.45rem} .topbar nav
-    button{font-size: 0.92rem}#acct-btn{margin-left: 0}.topbar
-    .purse{font-size: 1rem};
+#delete-dialog ul {
+  padding-left: 1.2rem;
+  font-size: 0.95rem;
 }

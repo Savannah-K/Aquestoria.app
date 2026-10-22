@@ -34,6 +34,7 @@
           setTimeout(function () {
             var b = window.AQ_BUILD || {},
               problems = [];
+            var MIN = { script: 5, account: 5, notify: 5 }; // oldest build of each file that still works with this page
             ["script", "account", "notify"].forEach(function (k) {
               if (!b[k])
                 problems.push(
@@ -42,20 +43,13 @@
                     k +
                     ' (1).js"), or has an error.',
                 );
+              else if (parseInt(String(b[k]).replace(/\D/g, ""), 10) < MIN[k])
+                problems.push(
+                  k + ".js is an old copy. Replace it with the newest version.",
+                );
             });
             if (!window.QUESTIVA_CONFIG)
               problems.push("config.js did not load.");
-            var vs = Object.keys(b).map(function (k) {
-              return b[k];
-            });
-            if (
-              vs.some(function (v) {
-                return v !== vs[0];
-              })
-            )
-              problems.push(
-                "Some files are from different versions. Re-upload ALL files together.",
-              );
             if (!problems.length && !errors.length) return;
             var d = document.createElement("div");
             d.id = "load-problem";
@@ -79,7 +73,7 @@
   </head>
   <body>
     <header class="topbar">
-      <h1>📖 Aquestoria</h1>
+      <h1>Aquestoria</h1>
       <nav aria-label="Main">
         <button data-view="dashboard">Dashboard</button>
         <button data-view="board">Quest Board</button>
@@ -140,7 +134,7 @@
         <p id="imp-hint" role="status"></p>
         <div class="grid">
           <div class="card">
-            <h3>📅 Calendar file (.ics)</h3>
+            <h3>Calendar file (.ics)</h3>
             <p>
               Export your calendar from Brightspace (or any calendar app) and
               upload the .ics file. The class above is used when the file
@@ -154,7 +148,7 @@
             />
           </div>
           <div class="card">
-            <h3>📜 Syllabus</h3>
+            <h3>Syllabus</h3>
             <p>
               Upload a PDF or .txt, or paste the schedule text. Everything is
               added to the class chosen above.
@@ -282,6 +276,37 @@
         </div>
       </form>
     </dialog>
+    <dialog id="delete-dialog">
+      <form id="delete-form">
+        <h2>Delete your account?</h2>
+        <p>
+          This <b>permanently deletes</b> your login and everything saved in
+          your account: quests, classes, Gold, characters, themes and settings.
+          It can't be undone.
+        </p>
+        <ul>
+          <li>
+            If you paid for the unlock, you will lose it. This does not refund
+            the payment, and Stripe keeps the payment record it is required to
+            keep.
+          </li>
+          <li>Tip: download your data first if you want a copy.</li>
+        </ul>
+        <label
+          >Type <b>DELETE</b> to confirm
+          <input id="delete-input" autocomplete="off" spellcheck="false"
+        /></label>
+        <p id="delete-err" class="err" role="alert"></p>
+        <div class="row">
+          <button type="button" id="delete-export">
+            Download my data first</button
+          ><button type="button" id="delete-cancel">Cancel</button
+          ><button type="submit" id="delete-yes" class="danger" disabled>
+            Delete everything
+          </button>
+        </div>
+      </form>
+    </dialog>
     <dialog id="confirm-dialog">
       <h2 id="confirm-title">Are you sure?</h2>
       <p id="confirm-msg"></p>
@@ -356,7 +381,10 @@
         <p id="pw-msg" class="err" role="status"></p>
         <div class="row">
           <button id="pw-export">Download my data</button
-          ><button id="pw-logout" class="linklike">Log out</button>
+          ><button id="pw-logout" class="linklike">Log out</button
+          ><button id="pw-delete" class="linklike danger-text">
+            Delete my account
+          </button>
         </div>
       </div>
     </div>
@@ -371,9 +399,14 @@
           <button id="acct-upgrade" class="primary">Unlock forever</button
           ><button id="acct-refresh">Refresh status</button>
         </div>
+        <p>
+          <button type="button" id="acct-delete" class="linklike danger-text">
+            Delete my account and data…
+          </button>
+        </p>
       </section>
       <section>
-        <h3>🔔 Due-date reminders</h3>
+        <h3>Due-date reminders</h3>
         <label class="chk"
           ><input type="checkbox" id="nt-enabled" /> Turn on reminders</label
         >

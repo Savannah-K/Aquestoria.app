@@ -1,4 +1,4 @@
-(window.AQ_BUILD = window.AQ_BUILD || {}).account = "aq-5"; // version stamp: index.html checks that every file is from the same version
+(window.AQ_BUILD = window.AQ_BUILD || {}).account = "aq-6"; // version stamp: index.html checks that every file is from the same version
 /* =====================================================================
    ACCOUNT: sign up / log in, cloud save, 168-hour free trial, paywall.   (setup steps: SETUP.md)
    - Needs the Supabase keys in config.js. Without them Aquestoria stays in local mode and this file does almost nothing.
@@ -16,7 +16,8 @@ const Account = (() => {
   );
   const $ = (id) => document.getElementById(id);
   const price = cfg.price || "$6.99";
-  let sb = null,
+  let deleting = false,
+    sb = null,
     user = null,
     profile = null,
     dirty = false,
@@ -129,8 +130,8 @@ const Account = (() => {
   function evaluateLock() {
     if (!user || !profile) return;
     const locked = !hasAccess();
-    if (locked)
-      document.querySelectorAll("dialog[open]").forEach((d) => d.close()); // an open window would sit on top of the paywall
+    if (locked && $("paywall").hidden)
+      document.querySelectorAll("dialog[open]").forEach((d) => d.close()); // when the paywall first appears, close windows that would sit on top of it
     $("paywall").hidden = !locked;
     setLocked();
     if (!locked && dirty) queueSave(); // just paid: send anything that couldn't be saved
@@ -219,12 +220,13 @@ const Account = (() => {
     }
   }
   function queueSave(now) {
+    if (deleting) return;
     dirty = true;
     clearTimeout(saveTimer);
     saveTimer = setTimeout(flush, now ? 0 : 800);
   }
   async function flush() {
-    if (!user || !dirty) return;
+    if (!user || !dirty || deleting) return;
     clearTimeout(saveTimer);
     if (profile && !hasAccess()) {
       evaluateLock();
@@ -377,6 +379,7 @@ const Account = (() => {
     renderStatus();
     if ($("account-dialog").open) $("account-dialog").close();
     $("paywall").hidden = true;
+    $("auth-pass").value = "";
     showAuth("login");
   }
   async function logout() {
@@ -417,6 +420,59 @@ const Account = (() => {
           toast("🎉 Aquestoria is unlocked forever. Thank you!");
       }
     }, 5000);
+  }
+  // ---------- delete account ----------
+  function openDelete() {
+    $("delete-input").value = "";
+    $("delete-yes").disabled = true;
+    $("delete-err").textContent = "";
+    if ($("account-dialog").open) $("account-dialog").close();
+    $("delete-dialog").showModal();
+    $("delete-input").focus();
+  }
+  async function deleteAccount(e) {
+    e.preventDefault();
+    if ($("delete-input").value !== "DELETE" || !user) return; // only the exact word DELETE goes through
+    $("delete-yes").disabled = true;
+    $("delete-err").textContent = "";
+    const id = user.id;
+    deleting = true;
+    clearTimeout(saveTimer);
+    clearTimeout(retryTimer); // stop any pending save so nothing re-creates the data
+    try {
+      const { error } = await sb.rpc("delete_my_account"); // the database deletes the login, profile and saved planner
+      if (error) throw error;
+    } catch (err) {
+      deleting = false;
+      $("delete-err").textContent =
+        "Couldn't delete the account: " +
+        friendly(err) +
+        " Nothing was deleted. Try again, or contact support.";
+      $("delete-yes").disabled = $("delete-input").value !== "DELETE";
+      return;
+    }
+    [
+      "questbook-v1-u-" + id,
+      "questiva-profile-" + id,
+      "questiva-notified",
+    ].forEach((k) => {
+      try {
+        localStorage.removeItem(k);
+      } catch (x) {
+        /* ignore */
+      }
+    }); // wipe this browser's copy too
+    $("delete-dialog").close();
+    try {
+      await sb.auth.signOut({ scope: "local" });
+    } catch (x) {
+      /* the account is gone anyway */
+    }
+    if (user) signedOut();
+    deleting = false;
+    $("auth-email").value = "";
+    $("auth-pass").value = ""; // don't leave the deleted account's details in the form
+    msg("Your account and all its data were deleted.", true);
   }
   function exportData() {
     const a = document.createElement("a");
@@ -532,6 +588,20 @@ const Account = (() => {
     $("acct-refresh").addEventListener("click", () => checkAgain());
     $("pw-check").addEventListener("click", () => checkAgain($("pw-msg")));
     $("pw-export").addEventListener("click", exportData);
+    if ($("delete-form")) {
+      // (guard: an old index.html without the delete window won't break the app)
+      ["acct-delete", "pw-delete"].forEach((id) =>
+        $(id).addEventListener("click", openDelete),
+      );
+      $("delete-form").addEventListener("submit", deleteAccount);
+      $("delete-input").addEventListener("input", () => {
+        $("delete-yes").disabled = $("delete-input").value !== "DELETE";
+      });
+      $("delete-cancel").addEventListener("click", () =>
+        $("delete-dialog").close(),
+      );
+      $("delete-export").addEventListener("click", exportData);
+    }
     ["pw-logout", "acct-logout"].forEach((id) =>
       $(id).addEventListener("click", logout),
     );
