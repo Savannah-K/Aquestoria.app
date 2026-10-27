@@ -1401,3 +1401,11 @@ body[data-theme="library"] {
   padding-left: 1.2rem;
   font-size: 0.95rem;
 }
+
+.card.soon {
+  text-align: center;
+  padding: 1rem;
+}
+.card.soon h3 {
+  margin: 0.3rem 0;
+}
