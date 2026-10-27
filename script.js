@@ -1,4 +1,4 @@
-(window.AQ_BUILD = window.AQ_BUILD || {}).script = "aq-5"; // version stamp: index.html checks that every file is from the same version
+(window.AQ_BUILD = window.AQ_BUILD || {}).script = "aq-6"; // version stamp: index.html checks that every file is from the same version
 /* =====================================================================
    QUESTBOOK – all app logic. Sections:
    1. SHOP ITEMS (edit names/prices/emoji here)   4. QUEST ACTIONS
@@ -99,9 +99,10 @@ let STORAGE_KEY = "questbook-v1"; // account.js switches this to a per-user key 
 let state; // filled in by loadState() at the very bottom, after all helpers exist
 
 function defaultState() {
+  // a blank slate: no sample quests, no classes
   return {
     gold: 0,
-    quests: [], // Sample quests removed
+    quests: [],
     notify: {
       enabled: false,
       morning: true,
@@ -118,6 +119,16 @@ function defaultState() {
 // Fixes up a saved state object (older saves, cloud copies). Returns null if it doesn't look like a Aquestoria save.
 function normalizeState(saved) {
   if (!saved || !Array.isArray(saved.quests)) return null;
+  // Older saves started with sample quests (marked demo:true). Remove them: the app now starts as a blank slate.
+  if (saved.quests.some((q) => q.demo)) {
+    saved.quests = saved.quests.filter((q) => !q.demo);
+    if (Array.isArray(saved.classes))
+      saved.classes = saved.classes.filter(
+        (c) =>
+          !["Business 101", "Marketing"].includes(c) ||
+          saved.quests.some((q) => q.course === c),
+      );
+  }
   if (!Array.isArray(saved.blocks)) saved.blocks = [];
   if (!saved.boardRange) saved.boardRange = "2w";
   if (!saved.notify)
@@ -240,7 +251,7 @@ function completeQuest(id) {
   if (!q.rewardPaid) {
     q.rewardPaid = true;
     state.gold += q.reward;
-    toast(` QUEST COMPLETE! 🪙 +${q.reward} ${CURRENCY}`);
+    toast(`✨ QUEST COMPLETE! 🪙 +${q.reward} ${CURRENCY}`);
   } else {
     toast("Quest completed again – reward was already collected.");
   }
@@ -381,8 +392,8 @@ const fmtTime = (t) => {
 const fmtHour = (h) => `${h % 12 || 12} ${h < 12 ? "AM" : "PM"}`;
 const head = (title, sub) => `<h2>${title}</h2><p class="sub">${sub}</p>`;
 // Friendly empty state: your equipped character (or an egg) + what to do next.
-const emptyState = (title, text, buttons = "") =>
-  `<div class="empty"><div class="big" aria-hidden="true">${artHTML(equippedChar())}</div><h3>${title}</h3><p>${text}</p>${buttons ? `<div class="row" style="justify-content:center">${buttons}</div>` : ""}</div>`;
+const emptyState = (title, text, buttons = "", showIcon = true) =>
+  `<div class="empty">${showIcon ? `<div class="big" aria-hidden="true">${artHTML(equippedChar())}</div>` : ""}<h3>${title}</h3><p>${text}</p>${buttons ? `<div class="row" style="justify-content:center">${buttons}</div>` : ""}</div>`;
 const equippedChar = () => findItem(CHARACTERS, state.equipped.character);
 const equippedTheme = () =>
   findItem([...FREE_THEMES, ...THEMES], state.equipped.theme);
@@ -407,16 +418,16 @@ function renderDashboard() {
       <p class="sub">Your day at a glance. Complete schoolwork → earn Gold → customize your world.</p></div></div>
     <div class="stats">
       <div class="card stat" title="Earn Gold by completing quests. Spend it in the Shop on characters and themes."><span>🪙 ${state.gold}</span>Gold<small>Earned by finishing quests</small><button class="mini" data-view="shop">Spend in Shop</button></div>
-      <div class="card stat"><span> ${dueToday.length}</span>Due today</div>
+      <div class="card stat"><span>⚔️ ${dueToday.length}</span>Due today</div>
       <div class="card stat ${overdue.length ? "bad" : ""}"><span>⚠️ ${overdue.length}</span>Overdue</div>
       <div class="card stat"><span>✅ ${done.length}/${total}</span>Completed<div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div></div>
     </div>
     <div class="section-head"><h2>Needs attention</h2></div>
-    ${cards([...overdue, ...dueToday], emptyState("All clear!", "Nothing is overdue or due today. Plan ahead, or spend some Gold in the Shop.", addBtns))}
+    ${cards([...overdue, ...dueToday], emptyState("All clear!", "Nothing is overdue or due today. Plan ahead, or spend some Gold in the Shop.", addBtns, false))}
     <div class="section-head"><h2>Coming up</h2><button data-view="calendar">Open calendar</button></div>
-    ${cards(upcoming, emptyState("No upcoming quests", "Add an assignment or import a syllabus to fill your quest board.", addBtns))}
+    ${cards(upcoming, emptyState("No upcoming quests", "Add an assignment or import a syllabus to fill your quest board.", addBtns, false))}
     <div class="section-head"><h2>Recently completed</h2></div>
-    ${cards(done.slice(-3).reverse(), emptyState("No victories yet", "Complete a quest to earn your first Gold!"))}`;
+    ${cards(done.slice(-3).reverse(), emptyState("No victories yet", "Complete a quest to earn your first Gold!", "", false))}`;
 }
 function renderBoard() {
   // The board only shows upcoming quests inside the chosen window so overdue and completed ones stay easy to see.
@@ -453,9 +464,9 @@ function renderBoard() {
   $("view-board").innerHTML = `
     <div class="section-head"><div><h2>Quest Board</h2><p class="sub">Every assignment as a quest card.</p></div><button class="primary" data-act="new">+ New quest</button></div>
     <div class="board-range"><span>Showing quests due:</span><div class="seg" role="group" aria-label="Quest board range">${range}</div></div>
-    <h2> Active quests</h2>${cards(active, emptyState("The board is quiet…", later ? `Nothing due in this window. ${later} later quest${later > 1 ? "s are" : " is"} hidden: try "All".` : "No active quests. Add an assignment or import a syllabus to begin your adventure.", addBtns))}${active.length ? note(later, "later quest" + (later > 1 ? "s" : "")) : ""}
-    <h2> Overdue quests</h2>${cards(overdue, emptyState("No overdue quests", "The dragon sleeps. Keep it that way!"))}
-    <h2> Completed quests</h2>${cards(done, emptyState("No completed quests yet", "Finish a quest to earn Gold for the Shop."))}${done.length ? note(doneAll.length - done.length, "older completed quest" + (doneAll.length - done.length > 1 ? "s" : "")) : ""}`;
+    <h2>⚔️ Active quests</h2>${cards(active, emptyState("The board is quiet…", later ? `Nothing due in this window. ${later} later quest${later > 1 ? "s are" : " is"} hidden: try "All".` : "No active quests. Add an assignment or import a syllabus to begin your adventure.", addBtns))}${active.length ? note(later, "later quest" + (later > 1 ? "s" : "")) : ""}
+    <h2>⚠️ Overdue quests</h2>${cards(overdue, emptyState("No overdue quests", "The dragon sleeps. Keep it that way!"))}
+    <h2>📜 Completed quests</h2>${cards(done, emptyState("No completed quests yet", "Finish a quest to earn Gold for the Shop."))}${done.length ? note(doneAll.length - done.length, "older completed quest" + (doneAll.length - done.length > 1 ? "s" : "")) : ""}`;
 }
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const addDays = (d, n) => {
@@ -492,13 +503,13 @@ function renderToday() {
       .filter((b) => b.date === iso)
       .map((b) => ({
         t: b.start,
-        html: ` <b>${fmtTime(b.start)}</b> ${esc(b.title)}`,
+        html: `🕒 <b>${fmtTime(b.start)}</b> ${esc(b.title)}`,
       })),
     ...state.quests
       .filter((q) => q.due === iso && q.time)
       .map((q) => ({
         t: q.time,
-        html: ` <b>${fmtTime(q.time)}</b> ${esc(q.name)} <small>due</small>`,
+        html: `⚔️ <b>${fmtTime(q.time)}</b> ${esc(q.name)} <small>due</small>`,
       })),
   ].sort((a, b) => a.t.localeCompare(b.t));
   const todo = (
@@ -699,14 +710,17 @@ function shopCard(kind, item) {
     <div class="row">${button}</div></div>`;
 }
 function renderShop() {
+  // Characters, then ONE "Color themes" section (free ones first, then the paid ones), then Backgrounds (coming soon).
   $("view-shop").innerHTML =
     head(
       "Shop",
-      "Quests earn Gold. Spend it here on cute characters and calendar themes. They are cosmetic only.",
+      "Quests earn Gold. Spend it here on cute characters and color themes. They are cosmetic only.",
     ) +
     `<h2>Characters</h2><div class="grid">${CHARACTERS.map((i) => shopCard("characters", i)).join("")}</div>
-    <h2>Free color themes</h2><p>Always free. Pick the look you like best.</p><div class="grid">${FREE_THEMES.map((i) => shopCard("themes", i)).join("")}</div>
-    <h2>Calendar themes</h2><div class="grid">${THEMES.map((i) => shopCard("themes", i)).join("")}</div>`;
+    <h2>Color themes</h2><p>Free themes are always available. The others cost Gold.</p>
+    <div class="grid">${[...FREE_THEMES, ...THEMES].map((i) => shopCard("themes", i)).join("")}</div>
+    <h2>Backgrounds</h2>
+    <div class="card soon"><span class="badge">Coming soon</span><h3>Illustrated backgrounds</h3><p>Hand-drawn backdrops for your planner are on the way. Keep earning Gold!</p></div>`;
 }
 function renderProfile() {
   const list = (items, kind) =>
