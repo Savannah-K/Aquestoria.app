@@ -163,7 +163,7 @@
               >…or paste syllabus text
               <textarea id="imp-text" rows="4"></textarea>
             </label>
-            <button id="imp-find" data-act="import-text">
+            <button type="button" id="imp-find" data-act="import-text">
               Find dates in pasted text
             </button>
           </div>
@@ -198,7 +198,7 @@
             id="q-reward"
             type="number"
             min="1"
-            max="1000"
+            max="500"
             value="50"
             required
         /></label>
@@ -208,7 +208,16 @@
         </label>
         <div class="row">
           <button type="submit" class="primary">Save quest</button>
-          <button type="button" id="q-cancel">Cancel</button>
+          <button
+            type="button"
+            id="q-cancel"
+            onclick="
+              document.getElementById('quest-form').reset();
+              document.getElementById('quest-dialog').close();
+            "
+          >
+            Cancel
+          </button>
         </div>
       </form>
     </dialog>
@@ -216,11 +225,16 @@
     <!-- Quest details (opened from calendar) -->
     <dialog id="detail-dialog">
       <div id="detail-body"></div>
-      <div class="row"><button id="detail-close">Close</button></div>
+      <div class="row">
+        <button type="button" id="detail-close">Close</button>
+      </div>
     </dialog>
 
     <footer style="text-align: center; font-size: 0.8rem; padding: 1rem">
-      Paper art by LCSkeleton / Robin Norkum
+      Paper art by LCSkeleton / Robin Norkum ·
+      <a href="privacy.html" style="color: inherit; text-decoration: underline"
+        >Privacy Policy</a
+      >
     </footer>
     <dialog id="block-dialog">
       <form id="block-form" method="dialog">
@@ -311,8 +325,8 @@
       <h2 id="confirm-title">Are you sure?</h2>
       <p id="confirm-msg"></p>
       <div class="row">
-        <button class="danger" id="confirm-yes">Yes, do it</button
-        ><button id="confirm-no">Cancel</button>
+        <button type="button" class="danger" id="confirm-yes">Yes, do it</button
+        ><button type="button" id="confirm-no">Cancel</button>
       </div>
     </dialog>
 
@@ -336,19 +350,76 @@
           <button type="button" data-auth-tab="signup">Sign up</button
           ><button type="button" data-auth-tab="login">Log in</button>
         </div>
-        <label class="fld" id="auth-email-wrap"
-          ><span>Email</span
-          ><input id="auth-email" type="email" required autocomplete="email"
-        /></label>
-        <label class="fld"
-          ><span id="auth-pass-label">Password (8+ characters)</span
-          ><input
-            id="auth-pass"
-            type="password"
+
+        <!-- Proportional Email Field -->
+        <label class="fld" id="auth-email-wrap">
+          <span>Email</span>
+          <input
+            id="auth-email"
+            type="email"
             required
-            minlength="8"
-            autocomplete="new-password"
-        /></label>
+            autocomplete="email"
+            style="
+              width: 100%;
+              height: 42px;
+              padding: 0.5rem 0.8rem;
+              font-size: 1rem;
+              box-sizing: border-box;
+            "
+          />
+        </label>
+
+        <!-- Password Field with Taller Box & Eye of Sauron Toggle -->
+        <label class="fld">
+          <span id="auth-pass-label">Password (8+ characters)</span>
+          <div style="position: relative; display: flex; align-items: center">
+            <input
+              id="auth-pass"
+              type="password"
+              required
+              minlength="8"
+              autocomplete="new-password"
+              style="
+                width: 100%;
+                height: 42px;
+                padding: 0.5rem 2.8rem 0.5rem 0.8rem;
+                font-size: 1rem;
+                box-sizing: border-box;
+              "
+            />
+            <button
+              type="button"
+              id="toggle-pass-visibility"
+              title="Show password"
+              style="
+                position: absolute;
+                right: 0.5rem;
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 2;
+              "
+            >
+              <img
+                id="toggle-pass-img"
+                src="Assets/eye.png"
+                alt="Show password"
+                style="
+                  width: 26px;
+                  height: 26px;
+                  object-fit: contain;
+                  opacity: 0.7;
+                  transition: opacity 0.2s;
+                "
+              />
+            </button>
+          </div>
+        </label>
+
         <p id="auth-msg" class="err" role="alert"></p>
         <button id="auth-submit" class="primary" type="submit">
           Create account
@@ -356,8 +427,99 @@
         <button type="button" id="auth-forgot" class="linklike" hidden>
           Forgot password?
         </button>
+
+        <!-- Unlabeled Secret Developer Portal with Taller Box & Eye of Sauron -->
+        <div id="dev-portal" style="margin-top: 1.2rem; text-align: center">
+          <button
+            type="button"
+            id="dev-portal-trigger"
+            style="
+              background: none;
+              border: none;
+              padding: 0;
+              margin: 0;
+              cursor: pointer;
+              outline: none;
+            "
+            aria-controls="dev-pass-wrap"
+          >
+            <img
+              src="Assets/portal.gif"
+              alt=""
+              style="
+                width: 100px;
+                height: 100px;
+                object-fit: contain;
+                display: block;
+                margin: 0 auto;
+              "
+            />
+          </button>
+          <div id="dev-pass-wrap" hidden style="margin-top: 0.8rem">
+            <div
+              style="
+                position: relative;
+                display: flex;
+                align-items: center;
+                margin-bottom: 0.4rem;
+              "
+            >
+              <input
+                type="password"
+                id="dev-password-input"
+                placeholder="Secret password"
+                style="
+                  width: 100%;
+                  height: 42px;
+                  padding: 0.5rem 2.8rem 0.5rem 0.8rem;
+                  font-size: 1rem;
+                  box-sizing: border-box;
+                "
+              />
+              <button
+                type="button"
+                id="toggle-dev-pass-visibility"
+                title="Show password"
+                style="
+                  position: absolute;
+                  right: 0.5rem;
+                  background: none;
+                  border: none;
+                  cursor: pointer;
+                  padding: 0;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  z-index: 2;
+                "
+              >
+                <img
+                  id="toggle-dev-pass-img"
+                  src="Assets/eye.png"
+                  alt="Show password"
+                  style="
+                    width: 26px;
+                    height: 26px;
+                    object-fit: contain;
+                    opacity: 0.7;
+                    transition: opacity 0.2s;
+                  "
+                />
+              </button>
+            </div>
+            <button
+              type="button"
+              id="dev-password-submit"
+              class="mini primary"
+              style="width: 100%"
+            >
+              Enter
+            </button>
+          </div>
+        </div>
       </form>
     </div>
+
     <div
       id="paywall"
       class="gate"
@@ -375,14 +537,15 @@
           subscription.
         </p>
         <div class="row">
-          <button id="pw-pay" class="primary">Unlock forever</button
-          ><button id="pw-check">I've paid, check again</button>
+          <button type="button" id="pw-pay" class="primary">
+            Unlock forever</button
+          ><button type="button" id="pw-check">I've paid, check again</button>
         </div>
         <p id="pw-msg" class="err" role="status"></p>
         <div class="row">
-          <button id="pw-export">Download my data</button
-          ><button id="pw-logout" class="linklike">Log out</button
-          ><button id="pw-delete" class="linklike danger-text">
+          <button type="button" id="pw-export">Download my data</button
+          ><button type="button" id="pw-logout" class="linklike">Log out</button
+          ><button type="button" id="pw-delete" class="linklike danger-text">
             Delete my account
           </button>
         </div>
@@ -396,8 +559,9 @@
         <p id="acct-status"></p>
         <p><small id="acct-sync"></small></p>
         <div class="row">
-          <button id="acct-upgrade" class="primary">Unlock forever</button
-          ><button id="acct-refresh">Refresh status</button>
+          <button type="button" id="acct-upgrade" class="primary">
+            Unlock forever</button
+          ><button type="button" id="acct-refresh">Refresh status</button>
         </div>
         <p>
           <button type="button" id="acct-delete" class="linklike danger-text">
@@ -428,9 +592,9 @@
         <button type="button" id="nt-test">Send a test reminder</button>
       </section>
       <div class="row">
-        <button id="acct-export">Download my data</button
-        ><button id="acct-logout" class="danger">Log out</button
-        ><button id="acct-close" class="primary">Close</button>
+        <button type="button" id="acct-export">Download my data</button
+        ><button type="button" id="acct-logout" class="danger">Log out</button
+        ><button type="button" id="acct-close" class="primary">Close</button>
       </div>
     </dialog>
 

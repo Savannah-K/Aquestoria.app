@@ -1062,7 +1062,7 @@ nav button.active {
   margin-top: 0.2rem;
 }
 dialog {
-  overflow: visible;
+  overflow: auto;
 }
 .err {
   color: var(--danger);

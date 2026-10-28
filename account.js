@@ -38,9 +38,10 @@ const Account = (() => {
         )
       : 0;
   const hasAccess = () =>
-    !!profile &&
-    (profile.paid ||
-      (secondsLeft() > 0 && new Date(profile.trial_ends_at) > new Date()));
+    sessionStorage.getItem("aq_dev_unlocked") === "true" ||
+    (!!profile &&
+      (profile.paid ||
+        (secondsLeft() > 0 && new Date(profile.trial_ends_at) > new Date())));
   const leftMs = () => secondsLeft() * 1000;
   function fmtLeft(ms) {
     const m = Math.max(0, Math.floor(ms / 60000));
@@ -638,6 +639,85 @@ const Account = (() => {
         } else showAuth("signup");
       })
       .catch(() => showAuth("login"));
+
+    // Toggle Password Visibility Listener (Main Password)
+    const togglePassBtn = $("toggle-pass-visibility");
+    const passInput = $("auth-pass");
+    const togglePassImg = $("toggle-pass-img");
+
+    if (togglePassBtn && passInput) {
+      togglePassBtn.addEventListener("click", () => {
+        const isPassword = passInput.type === "password";
+        passInput.type = isPassword ? "text" : "password";
+
+        if (togglePassImg) {
+          togglePassImg.style.opacity = isPassword ? "1" : "0.7";
+          togglePassImg.style.filter = isPassword
+            ? "drop-shadow(0 0 4px #ff4500)"
+            : "none";
+        }
+        togglePassBtn.title = isPassword ? "Hide password" : "Show password";
+      });
+    }
+
+    // Toggle Secret Password Visibility Listener (Dev Portal)
+    const toggleDevPassBtn = $("toggle-dev-pass-visibility");
+    const devPasswordInput = $("dev-password-input");
+    const toggleDevPassImg = $("toggle-dev-pass-img");
+
+    if (toggleDevPassBtn && devPasswordInput) {
+      toggleDevPassBtn.addEventListener("click", () => {
+        const isPassword = devPasswordInput.type === "password";
+        devPasswordInput.type = isPassword ? "text" : "password";
+
+        if (toggleDevPassImg) {
+          toggleDevPassImg.style.opacity = isPassword ? "1" : "0.7";
+          toggleDevPassImg.style.filter = isPassword
+            ? "drop-shadow(0 0 4px #ff4500)"
+            : "none";
+        }
+        toggleDevPassBtn.title = isPassword ? "Hide password" : "Show password";
+      });
+    }
+
+    // Dev Portal Listener
+    const devTrigger = $("dev-portal-trigger");
+    const devWrap = $("dev-pass-wrap");
+    const authScreen = $("auth-screen");
+
+    const toggleDevPortal = () => {
+      if (!devWrap) return;
+      devWrap.hidden = !devWrap.hidden;
+      if (!devWrap.hidden) devPasswordInput?.focus();
+    };
+
+    if (devTrigger) {
+      devTrigger.addEventListener("click", toggleDevPortal);
+    }
+
+    const submitDevPassword = (event) => {
+      event?.preventDefault();
+      if (!devPasswordInput) return;
+
+      const expectedPassword =
+        cfg.devPortalPassword || "my-grandma-was-a-pineapple";
+
+      if (devPasswordInput.value === expectedPassword) {
+        sessionStorage.setItem("aq_dev_unlocked", "true");
+        if (authScreen) authScreen.hidden = true;
+        if ($("paywall")) $("paywall").hidden = true;
+        setLocked();
+        toast("Developer access granted!");
+        renderStatus();
+      } else {
+        toast("Incorrect password.");
+      }
+    };
+
+    $("dev-password-submit")?.addEventListener("click", submitDevPassword);
+    devPasswordInput?.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") submitDevPassword(event);
+    });
   }
   window.addEventListener("DOMContentLoaded", init);
   return {
@@ -647,5 +727,5 @@ const Account = (() => {
     _goIdle: () => {
       lastActivity = 0;
     },
-  }; // underscore ones are for tests only
+  }; // Methods prefixed with _ are for tests only: _heartbeat, _goIdle
 })();
