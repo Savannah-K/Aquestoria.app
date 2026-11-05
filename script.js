@@ -10,6 +10,12 @@
    To add a character or theme: add one line. `art` is an emoji placeholder
    (swap for an image later). A theme `id` must match a body[data-theme="id"]
    block in style.css. */
+/* ===================== CHARACTER SPEECH LINES (edit here) =====================
+   Every character has a `speech` list. The dashboard shows ONE of these lines as the heading next to the
+   character, and clicking the character shows the next line. Use {name} to insert the character's name.
+   A character with no `speech` list uses DEFAULT_SPEECH, so new characters work straight away.
+   ============================================================================== */
+const DEFAULT_SPEECH = ["{name} is cheering you on!"];
 const CHARACTERS = [
   {
     id: "cat",
@@ -17,10 +23,52 @@ const CHARACTERS = [
     art: "",
     img: "Assets/jester-cat pfp.png",
     price: 150,
+    speech: [
+      "{name} is cheering you on!",
+      "Nyah-ha! One quest at a time, adventurer!",
+      "Even jesters finish their homework. Let's go!",
+      "{name} says: do the small one first. Easy win!",
+    ],
   },
-  { id: "fox", name: "Forest Fox", art: "🦊", img: "", price: 250 },
-  { id: "bunny", name: "Bunny Mage", art: "🐰", img: "", price: 300 },
-  { id: "dragon", name: "Baby Dragon", art: "🐉", img: "", price: 500 },
+  {
+    id: "fox",
+    name: "Forest Fox",
+    art: "🦊",
+    img: "",
+    price: 250,
+    speech: [
+      "{name} is cheering you on!",
+      "Stay sharp. Today's deadlines won't catch us!",
+      "I know a shortcut: start now.",
+      "{name} sniffed out your next quest. Ready?",
+    ],
+  },
+  {
+    id: "bunny",
+    name: "Bunny Mage",
+    art: "🐰",
+    img: "",
+    price: 300,
+    speech: [
+      "{name} is cheering you on!",
+      "Abracadabra! Your to-do list shrinks when you start.",
+      "A little magic and a little focus go a long way.",
+      "{name} cast Encouragement. It's super effective!",
+    ],
+  },
+  {
+    id: "dragon",
+    name: "Baby Dragon",
+    art: "🐉",
+    img: "",
+    price: 500,
+    speech: [
+      "{name} is cheering you on!",
+      "Rawr! Let's burn through that quest list!",
+      "Small dragon, big deadlines. We've got this!",
+      "{name} guards your Gold. Now go earn more!",
+    ],
+  },
 ];
 const THEMES = [
   { id: "forest", name: "Forest", art: "🌿", img: "", price: 200 },
@@ -68,11 +116,26 @@ const FREE_THEMES = [
   },
 ];
 const DEFAULT_MASCOT = { art: "🪼", img: "" }; // shown when no character is equipped (also used in empty states)
-const artHTML = (item, large = false) => {
+/* ===================== CHARACTER IMAGE SIZES (edit here) =====================
+   "large"  = the same size as in the Shop (112px). Used on the dashboard and in empty states.
+   "medium" = smaller, for the Collection page. No drop-shadow, blur or text-shadow is applied to character art. */
+const ART_SIZE = { large: 112, medium: 56 };
+const ART_EMOJI_SIZE = { large: "4rem", medium: "2rem" };
+const artHTML = (item, size = false) => {
   item = item || DEFAULT_MASCOT;
+  const key = size === true ? "large" : size; // `true` = large (the Shop passes true)
+  const px = ART_SIZE[key],
+    em = ART_EMOJI_SIZE[key];
   return item.img
-    ? `<img class="art-img" src="${item.img}" alt=""${large ? ' style="width:112px;height:112px;object-fit:contain;filter:drop-shadow(0 3px 5px #0005)"' : ""}>`
-    : `<span class="art-emoji"${large ? ' style="font-size:4rem;line-height:1.15;filter:drop-shadow(0 3px 5px #0005)"' : ""}>${item.art}</span>`;
+    ? `<img class="art-img" src="${item.img}" alt=""${px ? ` style="width:${px}px;height:${px}px;object-fit:contain"` : ""}>`
+    : `<span class="art-emoji"${em ? ` style="font-size:${em};line-height:1.15"` : ""}>${item.art}</span>`;
+};
+/* ===================== CHARACTER SPEECH PICKER ===================== */
+let speechN = Math.floor(Math.random() * 1000); // which line is showing; clicking the character adds 1
+const speechFor = (c) => {
+  if (!c) return "Welcome, adventurer!";
+  const lines = c.speech && c.speech.length ? c.speech : DEFAULT_SPEECH;
+  return lines[speechN % lines.length].replace(/\{name\}/g, c.name);
 };
 const CURRENCY = "Gold";
 // Saving to the browser can be blocked (private windows, some editor previews). That must never freeze the app.
@@ -399,7 +462,7 @@ const fmtHour = (h) => `${h % 12 || 12} ${h < 12 ? "AM" : "PM"}`;
 const head = (title, sub) => `<h2>${title}</h2><p class="sub">${sub}</p>`;
 // Friendly empty state: your equipped character (or an egg) + what to do next.
 const emptyState = (title, text, buttons = "", showIcon = true) =>
-  `<div class="empty">${showIcon ? `<div class="big" aria-hidden="true">${artHTML(equippedChar())}</div>` : ""}<h3>${title}</h3><p>${text}</p>${buttons ? `<div class="row" style="justify-content:center">${buttons}</div>` : ""}</div>`;
+  `<div class="empty">${showIcon ? `<div class="big" aria-hidden="true">${artHTML(equippedChar(), "large")}</div>` : ""}<h3>${title}</h3><p>${text}</p>${buttons ? `<div class="row" style="justify-content:center">${buttons}</div>` : ""}</div>`;
 const equippedChar = () => findItem(CHARACTERS, state.equipped.character);
 const equippedTheme = () =>
   findItem([...FREE_THEMES, ...THEMES], state.equipped.theme);
@@ -419,8 +482,8 @@ function renderDashboard() {
   const c = equippedChar();
   const addBtns = `<button class="primary" data-act="new">+ Add a quest</button><button data-view="import">Import a syllabus</button>`;
   $("view-dashboard").innerHTML = `
-    <div class="hero-line"><div class="big" aria-hidden="true">${artHTML(c)}</div><div>
-      <h2>${c ? c.name + " is cheering you on!" : "Welcome, adventurer!"}</h2>
+    <div class="hero-line"><div class="big" title="Click for something new to say" aria-hidden="true">${artHTML(c, "large")}</div><div>
+      <h2>${speechFor(c)}</h2>
       <p class="sub">Your day at a glance. Complete schoolwork → earn Gold → customize your world.</p></div></div>
     <div class="stats">
       <div class="card stat" title="Earn Gold by completing quests. Spend it in the Shop on characters and themes."><span>🪙 ${state.gold}</span>Gold<small>Earned by finishing quests</small><button class="mini" data-view="shop">Spend in Shop</button></div>
@@ -743,7 +806,7 @@ function renderProfile() {
     `<div class="card"><h3>Your collection</h3>
     <p>🪙 ${state.gold} ${CURRENCY}</p>
     <p>Quests completed: ${state.quests.filter((q) => q.completed).length}</p>
-    <p>Equipped character: ${c ? artHTML(c) + " " + c.name : "None"}</p>
+    <p>Equipped character: ${c ? artHTML(c, "medium") + " " + c.name : "None"}</p>
     <p>Equipped theme: ${t ? artHTML(t) + " " + t.name : "Aquestoria Green (default)"}</p>
     <p>Owned characters: ${list(CHARACTERS, "characters")}</p>
     <p>Owned themes: ${list(THEMES, "themes")}</p>
@@ -1676,3 +1739,10 @@ $("imp-syl").addEventListener("change", (e) => importFile(e, "syllabus"));
 state = loadState(); // load saved data (or sample data on first visit)
 syncClasses();
 renderAll();
+/* CHARACTER SPEECH: click the character on the dashboard to hear a different line */
+document.addEventListener("click", (e) => {
+  if (e.target.closest("#view-dashboard .hero-line .big")) {
+    speechN++;
+    renderDashboard();
+  }
+});

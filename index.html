@@ -542,6 +542,17 @@
           ><button type="button" id="pw-check">I've paid, check again</button>
         </div>
         <p id="pw-msg" class="err" role="status"></p>
+        <!-- ===== FREE-ACCESS CODE (paywall) — see "FREE ACCESS" in backend/setup.sql ===== -->
+        <div class="row">
+          <input
+            type="text"
+            id="pw-code"
+            placeholder="Free-access code"
+            autocomplete="off"
+            autocapitalize="characters"
+            aria-label="Free-access code"
+          /><button type="button" id="pw-code-go">Redeem code</button>
+        </div>
         <div class="row">
           <button type="button" id="pw-export">Download my data</button
           ><button type="button" id="pw-logout" class="linklike">Log out</button
@@ -562,6 +573,20 @@
           <button type="button" id="acct-upgrade" class="primary">
             Unlock forever</button
           ><button type="button" id="acct-refresh">Refresh status</button>
+        </div>
+        <!-- ===== FREE-ACCESS CODE (settings) — see "FREE ACCESS" in backend/setup.sql ===== -->
+        <div id="acct-code-box">
+          <div class="row">
+            <input
+              type="text"
+              id="acct-code"
+              placeholder="Have a free-access code?"
+              autocomplete="off"
+              autocapitalize="characters"
+              aria-label="Free-access code"
+            /><button type="button" id="acct-code-go">Redeem code</button>
+          </div>
+          <p id="acct-code-msg" class="err" role="status"></p>
         </div>
         <p>
           <button type="button" id="acct-delete" class="linklike danger-text">

@@ -87,3 +87,62 @@ begin
 end; $$;
 revoke all on function public.delete_my_account() from public, anon;
 grant execute on function public.delete_my_account() to authenticated;
+
+-- =====================================================================================================
+-- ===================== FREE ACCESS (bypass payment) — added section, safe to re-run =====================
+-- Two ways to give someone a free, permanent account. Both just set paid = true, which the rest of the
+-- app already treats as "unlocked forever" (no trial clock, no paywall).
+--
+-- WAY 1: GRANT BY EMAIL (they must have signed up first). Run this in the SQL Editor:
+--   update public.profiles set paid = true, paid_at = now(), stripe_session = 'free-grant'
+--   where email = 'friend@example.com';
+--   -- to take it back:  update public.profiles set paid = false, paid_at = null, stripe_session = null where email = '...';
+--
+-- WAY 2: ACCESS CODES you hand out. Create codes in the SQL Editor (use long random codes, never short words):
+--   insert into public.access_codes (code, max_uses, note) values ('AQ-7KD2-9XPM-4TQW', 1, 'for Sam');      -- one person
+--   insert into public.access_codes (code, max_uses, expires_at, note)
+--     values ('AQ-CLASSROOM-2026-Q8Z3', 30, now() + interval '60 days', 'class of 30');                   -- many people
+--   -- see who used what:  select code, uses, max_uses, note from public.access_codes;
+--   -- turn a code off:    update public.access_codes set disabled = true where code = '...';
+-- People type the code in the app (paywall or Settings → "Have a free-access code?").
+-- =====================================================================================================
+create table if not exists public.access_codes (
+  code       text primary key,
+  max_uses   integer     not null default 1,
+  uses       integer     not null default 0,
+  expires_at timestamptz,
+  disabled   boolean     not null default false,
+  note       text,
+  created_at timestamptz not null default now()
+);
+-- RLS on with NO policies = browsers can never read or list the codes. Only the function below (and you) can.
+alter table public.access_codes enable row level security;
+
+alter table public.profiles add column if not exists code_attempts integer not null default 0;
+
+-- Returns true if the code worked. Wrong guesses are counted; after 10 wrong guesses the account can no longer
+-- redeem codes (you can reset it: update public.profiles set code_attempts = 0 where email = '...';).
+create or replace function public.redeem_access_code(input_code text)
+returns boolean
+language plpgsql security definer set search_path = public as $$
+declare p public.profiles; c public.access_codes;
+begin
+  if auth.uid() is null then raise exception 'not signed in'; end if;
+  select * into p from public.profiles where id = auth.uid() for update;
+  if not found then raise exception 'no profile'; end if;
+  if p.paid then return true; end if;                       -- already unlocked: nothing to do
+  if p.code_attempts >= 10 then return false; end if;       -- too many wrong guesses
+  select * into c from public.access_codes
+    where code = upper(trim(input_code)) and not disabled
+      and uses < max_uses and (expires_at is null or expires_at > now())
+    for update;
+  if not found then
+    update public.profiles set code_attempts = code_attempts + 1 where id = p.id;
+    return false;
+  end if;
+  update public.access_codes set uses = uses + 1 where code = c.code;
+  update public.profiles set paid = true, paid_at = now(), stripe_session = 'free-code:' || c.code where id = p.id;
+  return true;
+end; $$;
+revoke all on function public.redeem_access_code(text) from public, anon;
+grant execute on function public.redeem_access_code(text) to authenticated;

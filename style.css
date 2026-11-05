@@ -1409,3 +1409,28 @@ body[data-theme="library"] {
 .card.soon h3 {
   margin: 0.3rem 0;
 }
+
+/* ===================== CHARACTER ART OVERRIDES (shadow / blur removed, bigger) =====================
+   Sizes are set in script.js (ART_SIZE). This block only makes sure nothing softens or shadows the art. */
+.art-img,
+.art-emoji,
+.hero-line .big,
+.empty .big,
+.item .art {
+  filter: none;
+  text-shadow: none;
+  -webkit-filter: none;
+}
+.hero-line .big,
+.empty .big {
+  flex: none;
+  line-height: 0;
+  cursor: pointer;
+}
+.empty .big {
+  cursor: default;
+}
+.hero-line .art-img,
+.empty .art-img {
+  display: block;
+}

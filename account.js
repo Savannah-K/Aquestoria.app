@@ -158,6 +158,7 @@ const Account = (() => {
         ? `Free trial: ${fmtLeft(left)} of use left (168 hours total). Only time you're actively using Aquestoria counts. Free hours also expire on ${new Date(profile.trial_ends_at).toLocaleDateString()}. After that, a one-time ${price} unlocks it forever.`
         : `Your free hours are used up. Unlock forever for a one-time ${price}.`;
     $("acct-upgrade").hidden = !!profile.paid;
+    if ($("acct-code-box")) $("acct-code-box").hidden = !!profile.paid; // free-access code box: hide once unlocked
     const showBanner = !profile.paid && hasAccess() && left < 24 * 36e5; // last 24 hours of use
     $("trial-banner").hidden = !showBanner;
     if (showBanner)
@@ -498,6 +499,35 @@ const Account = (() => {
     }
   }
 
+  // ===================== FREE-ACCESS CODE (bypass payment) =====================
+  // Calls the database function redeem_access_code (backend/setup.sql). The SERVER decides if the code is valid
+  // and sets paid = true, so nothing in this file can grant access by itself.
+  async function redeemCode(input, out) {
+    const code = (input.value || "").trim();
+    if (!code) {
+      out.textContent = "Type your code first.";
+      return;
+    }
+    out.textContent = "Checking…";
+    try {
+      const { data, error } = await sb.rpc("redeem_access_code", {
+        input_code: code,
+      });
+      if (error) throw error;
+      if (data === true) {
+        input.value = "";
+        out.textContent = "";
+        await refreshProfile();
+        toast("🎉 Aquestoria is unlocked. Welcome!");
+      } else {
+        out.textContent =
+          "That code didn't work. Check it for typos, or it may be used up or expired.";
+      }
+    } catch (e) {
+      out.textContent = "Couldn't check the code right now. Are you online?";
+    }
+  }
+
   // ---------- start ----------
   function init() {
     $("acct-btn").addEventListener("click", () => {
@@ -589,6 +619,12 @@ const Account = (() => {
     $("acct-refresh").addEventListener("click", () => checkAgain());
     $("pw-check").addEventListener("click", () => checkAgain($("pw-msg")));
     $("pw-export").addEventListener("click", exportData);
+    $("pw-code-go").addEventListener("click", () =>
+      redeemCode($("pw-code"), $("pw-msg")),
+    );
+    $("acct-code-go").addEventListener("click", () =>
+      redeemCode($("acct-code"), $("acct-code-msg")),
+    );
     if ($("delete-form")) {
       // (guard: an old index.html without the delete window won't break the app)
       ["acct-delete", "pw-delete"].forEach((id) =>

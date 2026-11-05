@@ -1,0 +1,29 @@
+# ===== KEEP SUPABASE AWAKE =====
+# Sends one tiny request to your Supabase project twice a week so the free plan doesn't pause it for inactivity.
+# Put this file in your website's GitHub repo at:  .github/workflows/keep-alive.yml
+# Setup steps are in the chat (add two repository secrets, then run it once by hand to test).
+name: Keep Supabase awake
+
+on:
+  schedule:
+    - cron: "0 14 * * 1,4" # Mondays and Thursdays at 14:00 UTC
+  workflow_dispatch: # lets you press "Run workflow" manually to test it
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          # Asks for at most 1 row from the profiles table. Row-level security hides the data from the anon key,
+          # so this returns an empty list, which is fine: it still counts as activity.
+          # -f makes curl fail on errors, so GitHub emails you if the project is paused or the keys are wrong.
+          curl -fsS \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+            "$SUPABASE_URL/rest/v1/profiles?select=id&limit=1"
+          echo
+          echo "Supabase responded OK"
