@@ -11,16 +11,22 @@
    (swap for an image later). A theme `id` must match a body[data-theme="id"]
    block in style.css. */
 const CHARACTERS = [
-  { id: "cat", name: "Black Cat", art: "🐈", img: "", price: 150 },
+  {
+    id: "cat",
+    name: "Jester Cat",
+    art: "",
+    img: "Assets/jester-cat pfp.png",
+    price: 150,
+  },
   { id: "fox", name: "Forest Fox", art: "🦊", img: "", price: 250 },
   { id: "bunny", name: "Bunny Mage", art: "🐰", img: "", price: 300 },
   { id: "dragon", name: "Baby Dragon", art: "🐉", img: "", price: 500 },
 ];
 const THEMES = [
-  { id: "forest", name: "Enchanted Forest", art: "🌿", img: "", price: 200 },
-  { id: "castle", name: "Moonlit Castle", art: "🌙", img: "", price: 350 },
-  { id: "mushroom", name: "Mushroom Village", art: "🍄", img: "", price: 400 },
-  { id: "library", name: "Magical Library", art: "📚", img: "", price: 500 },
+  { id: "forest", name: "Forest", art: "🌿", img: "", price: 200 },
+  { id: "castle", name: "Moonlight", art: "🌙", img: "", price: 350 },
+  { id: "mushroom", name: "Mushroom", art: "🍄", img: "", price: 400 },
+  { id: "library", name: "Library", art: "📚", img: "", price: 500 },
 ];
 /* ART HOOKS: give any character/theme an `img` (path to your drawing, e.g. "assets/characters/cat.png").
    While `img` is "", the emoji in `art` is shown. Nothing else needs to change. Theme BACKGROUND art is set in
@@ -62,11 +68,11 @@ const FREE_THEMES = [
   },
 ];
 const DEFAULT_MASCOT = { art: "🪼", img: "" }; // shown when no character is equipped (also used in empty states)
-const artHTML = (item) => {
+const artHTML = (item, large = false) => {
   item = item || DEFAULT_MASCOT;
   return item.img
-    ? `<img class="art-img" src="${item.img}" alt="">`
-    : `<span class="art-emoji">${item.art}</span>`;
+    ? `<img class="art-img" src="${item.img}" alt=""${large ? ' style="width:112px;height:112px;object-fit:contain;filter:drop-shadow(0 3px 5px #0005)"' : ""}>`
+    : `<span class="art-emoji"${large ? ' style="font-size:4rem;line-height:1.15;filter:drop-shadow(0 3px 5px #0005)"' : ""}>${item.art}</span>`;
 };
 const CURRENCY = "Gold";
 // Saving to the browser can be blocked (private windows, some editor previews). That must never freeze the app.
@@ -705,7 +711,7 @@ function shopCard(kind, item) {
   const dots = item.swatch
     ? `<div class="dots" aria-hidden="true">${item.swatch.map((c) => `<i style="background:${c}"></i>`).join("")}</div>`
     : "";
-  return `<div class="card item"><div class="art">${artHTML(item)}</div><h3>${item.name}</h3>${dots}
+  return `<div class="card item"><div class="art" style="min-height:132px;display:flex;align-items:center;justify-content:center">${artHTML(item, true)}</div><h3>${item.name}</h3>${dots}
     <div>${item.free ? "Free" : owned ? "Owned" : `🪙 ${item.price} ${CURRENCY}${state.gold < item.price ? " (can't afford yet)" : ""}`}</div>
     <div class="row">${button}</div></div>`;
 }

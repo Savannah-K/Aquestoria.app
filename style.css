@@ -384,7 +384,7 @@ dialog textarea {
   font-family: var(--font-heading);
   font-weight: 400;
   color: var(--gold);
-  text-shadow: 0 2px 0 #000a;
+  text-shadow: none;
   letter-spacing: 0.03em;
 }
 #view-board > h2 {

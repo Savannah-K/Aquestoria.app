@@ -699,8 +699,7 @@ const Account = (() => {
       event?.preventDefault();
       if (!devPasswordInput) return;
 
-      const expectedPassword =
-        cfg.devPortalPassword || "my-grandma-was-a-pineapple";
+      const expectedPassword = cfg.devPortalPassword || "prawns";
 
       if (devPasswordInput.value === expectedPassword) {
         sessionStorage.setItem("aq_dev_unlocked", "true");
