@@ -15,8 +15,8 @@ jobs:
     steps:
       - name: Ping Supabase
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_URL: ${{ "https://otuqcrkmhvsegeosoilv.supabase.co/rest/v1/" }}
+          SUPABASE_ANON_KEY: ${{ "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90dXFjcmttaHZzZWdlb3NvaWx2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE4NTIzODIsImV4cCI6MjEwNzQyODM4Mn0.y96Yl1BxzD8hrlfd2EX8zovBBAsdTcSJ7LWuwfAkpo4" }}
         run: |
           # Asks for at most 1 row from the profiles table. Row-level security hides the data from the anon key,
           # so this returns an empty list, which is fine: it still counts as activity.
