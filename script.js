@@ -25,9 +25,9 @@ const CHARACTERS = [
     price: 150,
     speech: [
       "{name} is cheering you on!",
-      "Nyah-ha! One quest at a time, adventurer!",
-      "Even jesters finish their homework. Let's go!",
-      "{name} says: do the small one first. Easy win!",
+      "{name} says: I'm not a peasant, you are. Meow.",
+      "{name} says: do the short one first.",
+      "{name} says: nap later. Quests now.",
     ],
   },
   {
@@ -38,9 +38,9 @@ const CHARACTERS = [
     price: 250,
     speech: [
       "{name} is cheering you on!",
-      "Stay sharp. Today's deadlines won't catch us!",
-      "I know a shortcut: start now.",
-      "{name} sniffed out your next quest. Ready?",
+      "Deadlines are closer than they look.",
+      "Start with whatever's due first.",
+      "{name} says: five minutes. Then see how you feel.",
     ],
   },
   {
@@ -51,9 +51,9 @@ const CHARACTERS = [
     price: 300,
     speech: [
       "{name} is cheering you on!",
-      "Abracadabra! Your to-do list shrinks when you start.",
-      "A little magic and a little focus go a long way.",
-      "{name} cast Encouragement. It's super effective!",
+      "Open the list. That's the hard part.",
+      "One quest, then a break.",
+      "{name} says: you've done more than you think.",
     ],
   },
   {
@@ -64,9 +64,9 @@ const CHARACTERS = [
     price: 500,
     speech: [
       "{name} is cheering you on!",
-      "Rawr! Let's burn through that quest list!",
-      "Small dragon, big deadlines. We've got this!",
-      "{name} guards your Gold. Now go earn more!",
+      "Rawr. Quest list. Now.",
+      "Finish your quests or I'm sitting on your Gold.",
+      "{name} says: one more, then you can stop.",
     ],
   },
 ];
@@ -460,9 +460,9 @@ const fmtTime = (t) => {
 };
 const fmtHour = (h) => `${h % 12 || 12} ${h < 12 ? "AM" : "PM"}`;
 const head = (title, sub) => `<h2>${title}</h2><p class="sub">${sub}</p>`;
-// Friendly empty state: your equipped character (or an egg) + what to do next.
+// Friendly empty state: a message + what to do next. The character is NOT shown here (only on the dashboard header and in the Shop). `showIcon` is kept only so old calls still work; it does nothing.
 const emptyState = (title, text, buttons = "", showIcon = true) =>
-  `<div class="empty">${showIcon ? `<div class="big" aria-hidden="true">${artHTML(equippedChar(), "large")}</div>` : ""}<h3>${title}</h3><p>${text}</p>${buttons ? `<div class="row" style="justify-content:center">${buttons}</div>` : ""}</div>`;
+  `<div class="empty"><h3>${title}</h3><p>${text}</p>${buttons ? `<div class="row" style="justify-content:center">${buttons}</div>` : ""}</div>`;
 const equippedChar = () => findItem(CHARACTERS, state.equipped.character);
 const equippedTheme = () =>
   findItem([...FREE_THEMES, ...THEMES], state.equipped.theme);
@@ -484,7 +484,7 @@ function renderDashboard() {
   $("view-dashboard").innerHTML = `
     <div class="hero-line"><div class="big" title="Click for something new to say" aria-hidden="true">${artHTML(c, "large")}</div><div>
       <h2>${speechFor(c)}</h2>
-      <p class="sub">Your day at a glance. Complete schoolwork → earn Gold → customize your world.</p></div></div>
+      <p class="sub">Finish your schoolwork, earn Gold, spend it in the Shop.</p></div></div>
     <div class="stats">
       <div class="card stat" title="Earn Gold by completing quests. Spend it in the Shop on characters and themes."><span>🪙 ${state.gold}</span>Gold<small>Earned by finishing quests</small><button class="mini" data-view="shop">Spend in Shop</button></div>
       <div class="card stat"><span>⚔️ ${dueToday.length}</span>Due today</div>
@@ -533,7 +533,7 @@ function renderBoard() {
   $("view-board").innerHTML = `
     <div class="section-head"><div><h2>Quest Board</h2><p class="sub">Every assignment as a quest card.</p></div><button class="primary" data-act="new">+ New quest</button></div>
     <div class="board-range"><span>Showing quests due:</span><div class="seg" role="group" aria-label="Quest board range">${range}</div></div>
-    <h2>⚔️ Active quests</h2>${cards(active, emptyState("The board is quiet…", later ? `Nothing due in this window. ${later} later quest${later > 1 ? "s are" : " is"} hidden: try "All".` : "No active quests. Add an assignment or import a syllabus to begin your adventure.", addBtns))}${active.length ? note(later, "later quest" + (later > 1 ? "s" : "")) : ""}
+    <h2>⚔️ Active quests</h2>${cards(active, emptyState("Nothing on the board", later ? `Nothing due in this window. ${later} later quest${later > 1 ? "s are" : " is"} hidden: try "All".` : "No active quests. Add an assignment or import a syllabus.", addBtns))}${active.length ? note(later, "later quest" + (later > 1 ? "s" : "")) : ""}
     <h2>⚠️ Overdue quests</h2>${cards(overdue, emptyState("No overdue quests", "The dragon sleeps. Keep it that way!"))}
     <h2>📜 Completed quests</h2>${cards(done, emptyState("No completed quests yet", "Finish a quest to earn Gold for the Shop."))}${done.length ? note(doneAll.length - done.length, "older completed quest" + (doneAll.length - done.length > 1 ? "s" : "")) : ""}`;
 }
@@ -598,7 +598,7 @@ function renderToday() {
 //  - Your time blocks run start → end (no end = 1 hour). Quests with a due time are 30-minute markers at that time.
 //  - Quests without a time go in "All Day". Click any empty hour to add a time block there.
 //  - Items that overlap in time are placed side by side.
-const HOUR_H = 56; // pixel height of one hour on the grid (change for a taller/shorter timeline)
+const HOUR_H = 40; // pixel height of one hour on the grid (change for a taller/shorter timeline)
 const toMin = (t) =>
   parseInt(t.slice(0, 2), 10) * 60 + parseInt(t.slice(3, 5), 10);
 function layoutOverlaps(evs) {
@@ -651,8 +651,9 @@ function renderTimeline(iso) {
         end: toMin(q.time) + 30,
       })),
   ];
-  const from = Math.min(8, ...evs.map((e) => Math.floor(e.start / 60))),
-    to = Math.min(24, Math.max(18, ...evs.map((e) => Math.ceil(e.end / 60))));
+  // Always show the whole day, 12 AM to 11 PM, so every hour is visible at once.
+  const from = 0,
+    to = 24;
   layoutOverlaps(evs);
   const px = (min) => ((min - from * 60) / 60) * HOUR_H;
   let grid = "";
@@ -682,7 +683,7 @@ function renderTimeline(iso) {
     ? allDay
         .map(
           (q) =>
-            `<button class="allday-item ${q.completed ? "done" : isOverdue(q) ? "overdue" : isPastImport(q) ? "archived" : ""}" data-act="detail" data-id="${q.id}">⚔️ <b>${esc(q.name)}</b> <small>· ${esc(courseLabel(q))} — ${iso === today() ? "due today" : "due"}</small></button>`,
+            `<button class="allday-item ${q.completed ? "done" : isOverdue(q) ? "overdue" : isPastImport(q) ? "archived" : ""}" data-act="detail" data-id="${q.id}">⚔️ <b>${esc(q.name)}</b> <small>· ${esc(courseLabel(q))} · ${iso === today() ? "due today" : "due"}</small></button>`,
         )
         .join("")
     : "<small>Nothing all-day.</small>";
@@ -704,7 +705,7 @@ function renderCalendar() {
     nav = `<div class="section-head"><button data-act="prev" aria-label="Previous day">◀ Prev</button>
       <label class="daypick">Date <input type="date" id="day-pick" value="${iso}"></label><button data-act="next" aria-label="Next day">Next ▶</button></div>
       <h2 class="cal-title">${calDate.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</h2>
-      <div class="row"><button class="primary" data-act="new" data-date="${iso}">+ Add quest</button><button data-act="new-block" data-date="${iso}" data-time="09:00">+ Add time block</button></div>`;
+      <div class="row day-actions"><button class="primary" data-act="new" data-date="${iso}">+ Add quest</button><button data-act="new-block" data-date="${iso}" data-time="09:00">+ Add time block</button></div>`;
     body = renderTimeline(iso);
   } else {
     let title;

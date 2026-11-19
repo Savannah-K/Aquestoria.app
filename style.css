@@ -1434,3 +1434,17 @@ body[data-theme="library"] {
 .empty .art-img {
   display: block;
 }
+
+/* ===================== DAY VIEW SPACING ===================== */
+/* Space under "+ Add quest" / "+ Add time block" so they don't sit on top of the timeline. */
+.day-actions {
+  margin-bottom: 1.5rem;
+}
+
+/* ===================== NO CHARACTER ON THE BOARDS ===================== */
+/* The equipped character only shows in the dashboard header and the Shop (belt and braces for the quest board). */
+#view-board .art-img,
+#view-board .art-emoji,
+#view-board .empty .big {
+  display: none;
+}

@@ -29,19 +29,15 @@ const Account = (() => {
     mode = "signup";
 
   // ---------- trial helpers ----------
-  // The trial is 168 hours of ACTUAL USE. The server counts it (record_usage in backend/setup.sql); we only show it.
+  // The trial is 168 CONSECUTIVE hours (7 days) counted on the clock from sign-up, whether or not the app is open.
+  // The server enforces it with profiles.trial_ends_at (backend/setup.sql); we only show it.
   const secondsLeft = () =>
     profile
-      ? Math.max(
-          0,
-          (profile.trial_seconds ?? 604800) - (profile.used_seconds ?? 0),
-        )
+      ? Math.max(0, (new Date(profile.trial_ends_at) - Date.now()) / 1000)
       : 0;
   const hasAccess = () =>
     sessionStorage.getItem("aq_dev_unlocked") === "true" ||
-    (!!profile &&
-      (profile.paid ||
-        (secondsLeft() > 0 && new Date(profile.trial_ends_at) > new Date())));
+    (!!profile && (profile.paid || secondsLeft() > 0));
   const leftMs = () => secondsLeft() * 1000;
   function fmtLeft(ms) {
     const m = Math.max(0, Math.floor(ms / 60000));
@@ -149,20 +145,20 @@ const Account = (() => {
       ? "👑 Unlocked"
       : hasAccess()
         ? `⏳ ${fmtLeft(left)} left`
-        : "🔒 Trial used up";
+        : "🔒 Trial ended";
     btn.classList.toggle("warn", !profile.paid && left < 864e5);
     $("acct-email").textContent = user.email;
     $("acct-status").textContent = profile.paid
       ? "Unlocked forever. Thank you for supporting Aquestoria! 👑"
       : hasAccess()
-        ? `Free trial: ${fmtLeft(left)} of use left (168 hours total). Only time you're actively using Aquestoria counts. Free hours also expire on ${new Date(profile.trial_ends_at).toLocaleDateString()}. After that, a one-time ${price} unlocks it forever.`
-        : `Your free hours are used up. Unlock forever for a one-time ${price}.`;
+        ? `Free trial: ${fmtLeft(left)} left. Your 168 free hours run continuously from sign-up and end on ${new Date(profile.trial_ends_at).toLocaleString()}. After that, a one-time ${price} unlocks it forever.`
+        : `Your 168-hour free trial has ended. Unlock forever for a one-time ${price}.`;
     $("acct-upgrade").hidden = !!profile.paid;
     if ($("acct-code-box")) $("acct-code-box").hidden = !!profile.paid; // free-access code box: hide once unlocked
-    const showBanner = !profile.paid && hasAccess() && left < 24 * 36e5; // last 24 hours of use
+    const showBanner = !profile.paid && hasAccess() && left < 24 * 36e5; // last 24 hours of the trial
     $("trial-banner").hidden = !showBanner;
     if (showBanner)
-      $("tb-text").textContent = `Free trial: ${fmtLeft(left)} of use left.`;
+      $("tb-text").textContent = `Free trial: ${fmtLeft(left)} left.`;
   }
 
   // ---------- cloud save ----------
@@ -294,46 +290,10 @@ const Account = (() => {
     }
   }
 
-  // ---------- usage meter ("actual use") ----------
-  // About once a minute, if the tab is visible AND you touched the keyboard/mouse/screen in the last 2 minutes,
-  // we tell the server "still using it". The server credits the time. Idle or hidden tabs send nothing.
-  let lastActivity = Date.now(),
-    sessionActive = false,
-    hb = null;
-  ["pointerdown", "keydown", "scroll", "touchstart", "mousemove"].forEach(
-    (ev) =>
-      window.addEventListener(
-        ev,
-        () => {
-          lastActivity = Date.now();
-        },
-        { passive: true },
-      ),
-  );
-  async function heartbeat() {
-    const active = !document.hidden && Date.now() - lastActivity < 120000;
-    if (!active || !user || !profile || profile.paid || !hasAccess()) {
-      sessionActive = false;
-      return;
-    }
-    const fresh = !sessionActive;
-    sessionActive = true; // first beat after starting/resuming credits nothing
-    try {
-      const { data, error } = await sb.rpc("record_usage", { fresh });
-      if (error) return; // offline: nothing is counted
-      const row = Array.isArray(data) ? data[0] : data;
-      if (row) {
-        profile.used_seconds = row.used_seconds;
-        profile.trial_seconds = row.trial_seconds;
-        profile.paid = row.paid;
-        store.set("questiva-profile-" + user.id, JSON.stringify(profile));
-        renderStatus();
-        evaluateLock();
-      }
-    } catch (e) {
-      /* ignore */
-    }
-  }
+  // ---------- usage meter: REMOVED ----------
+  // The trial now runs on the clock (168 hours from sign-up), so nothing needs to be counted. heartbeat() is kept
+  // as an empty function so the other places that call it keep working.
+  async function heartbeat() {}
 
   // ---------- sign in / out ----------
   async function signedIn(u) {
