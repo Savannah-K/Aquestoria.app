@@ -2,9 +2,9 @@
    body = all normal text | title = card titles | heading = big page headings.
    Example: @font-face{font-family:"MyHand";src:url(assets/fonts/MyHand.woff2)} then --font-body:"MyHand",system-ui,sans-serif; */
 :root {
-  --font-body: Nunito, system-ui, sans-serif;
-  --font-title: Almendra, Georgia, serif;
-  --font-heading: "Macondo Swash Caps", Almendra, Georgia, serif;
+  --font-body: "Noto Sans", system-ui, sans-serif;
+  --font-title: "Macondo Swash Caps", Georgia, serif;
+  --font-heading: "Macondo Swash Caps", Georgia, serif;
 }
 
 /* ===== THEMES: each theme only changes these variables. Add a theme = add a block. =====
@@ -337,8 +337,15 @@ dialog textarea {
     font-size: 0;
   }
   .chip::before {
-    content: "⚔️";
-    font-size: 0.8rem;
+    content: "";
+    display: inline-block;
+    width: 0.9rem;
+    height: 0.9rem;
+    background: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M20 4 10 14'/%3E%3Cpath d='m7.5 12.5 4 4'/%3E%3Cpath d='m9.5 14.5-4.5 4.5'/%3E%3C/svg%3E")
+      center/contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M20 4 10 14'/%3E%3Cpath d='m7.5 12.5 4 4'/%3E%3Cpath d='m9.5 14.5-4.5 4.5'/%3E%3C/svg%3E")
+      center/contain no-repeat;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -1447,4 +1454,23 @@ body[data-theme="library"] {
 #view-board .art-emoji,
 #view-board .empty .big {
   display: none;
+}
+
+/* ===================== ICONS (replace the old emojis; drawn in script.js ICON_PATHS) ===================== */
+.ic {
+  width: 1.1em;
+  height: 1.1em;
+  vertical-align: -0.18em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+}
+.ic-coin {
+  color: #b8860b;
+}
+.ic-warning {
+  color: #b3261e;
 }

@@ -3,13 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Aquestoria – the fantasy student planner</title>
+    <title>Aquestoria – A Fantasy Student Planner</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Nunito:wght@400;700&family=Macondo+Swash+Caps&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Macondo+Swash+Caps&family=Noto+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="landing.css" />
+    <meta
+      name="description"
+      content="Aquestoria is a fantasy student planner. Turn your assignments into quests and earn Gold for finishing them."
+    />
     <script>
       /* Safety net: if a file is missing, renamed (e.g. "script (1).js") or from an older version, show a clear message instead of a dead page. */
       (function () {
@@ -87,7 +92,7 @@
         data-view="shop"
         title="Gold: earn it by completing quests, spend it in the Shop on characters and themes"
       >
-        🪙 <span id="gold">0</span> Gold
+        <span data-ic="coin"></span> <span id="gold">0</span> Gold
       </button>
       <button
         class="purse"
@@ -95,11 +100,11 @@
         type="button"
         title="Account, free-trial time and reminders"
       >
-        ⚙ Settings
+        Settings
       </button>
     </header>
     <div id="trial-banner" role="status" hidden>
-      ⏳ <span id="tb-text"></span>
+      <span data-ic="clock"></span> <span id="tb-text"></span>
       <button type="button" id="tb-unlock" class="mini primary">
         Unlock forever
       </button>
@@ -330,6 +335,132 @@
       </div>
     </dialog>
 
+    <!-- =====================================================================
+         LANDING PAGE  (shown to visitors who aren't logged in; hidden in local mode)
+         Everything marked EDIT ME is placeholder text for you to rewrite. Styles are in landing.css.
+         Buttons with data-landing="signup" / "login" open the sign-up / log-in screen.
+         ===================================================================== -->
+    <div id="landing" class="landing" hidden>
+      <div class="landing-wrap">
+        <nav class="landing-nav" aria-label="Main">
+          <span class="landing-logo">Aquestoria</span>
+          <div class="row">
+            <button type="button" data-landing="login">Log in</button>
+            <button type="button" class="primary" data-landing="signup">
+              Start free trial
+            </button>
+          </div>
+        </nav>
+
+        <header class="landing-hero">
+          <div>
+            <!-- Brand logo (transparent SVG, from your style guide). Files: Assets/logo-color.svg and Assets/logo-mono.svg -->
+            <img
+              class="landing-logo-img"
+              src="Assets/logo-color.svg"
+              alt="Aquestoria, a fantasy student planner"
+            />
+            <!-- EDIT ME: headline and intro -->
+            <h1>Turn your homework into quests</h1>
+            <p>
+              Add your assignments, finish the quests, and collect Gold to spend
+              on new companions and themes.
+            </p>
+            <div class="row">
+              <button type="button" class="primary" data-landing="signup">
+                Start free trial
+              </button>
+              <button type="button" data-landing="login">
+                I have an account
+              </button>
+            </div>
+          </div>
+          <!-- EDIT ME: swap this picture for a screenshot of the app if you like -->
+          <img
+            class="landing-hero-art"
+            src="Assets/jester-cat%20pfp.png"
+            alt="Jester Cat, one of the characters you can unlock"
+          />
+        </header>
+
+        <section aria-labelledby="lp-how">
+          <h2 id="lp-how">How it works</h2>
+          <div class="landing-steps">
+            <!-- EDIT ME -->
+            <div class="landing-card">
+              <h3>1. Add your assignments</h3>
+              <p>
+                Type them in, or paste a syllabus and pick out the dates you
+                want.
+              </p>
+            </div>
+            <div class="landing-card">
+              <h3>2. Finish quests</h3>
+              <p>Each assignment is a quest. Complete one and you get Gold.</p>
+            </div>
+            <div class="landing-card">
+              <h3>3. Spend your Gold</h3>
+              <p>Buy new characters and themes in the Shop.</p>
+            </div>
+          </div>
+        </section>
+
+        <section aria-labelledby="lp-features">
+          <h2 id="lp-features">What's in it</h2>
+          <div class="landing-features">
+            <!-- EDIT ME -->
+            <div class="landing-card">
+              <h3>Syllabus import</h3>
+              <p>
+                Upload a PDF or paste the text. You check every date before it
+                goes on your calendar.
+              </p>
+            </div>
+            <div class="landing-card">
+              <h3>Quest board and calendar</h3>
+              <p>See what's due in a day, week or month view.</p>
+            </div>
+            <div class="landing-card">
+              <h3>Reminders</h3>
+              <p>
+                Browser notifications for what's due, while Aquestoria is open.
+              </p>
+            </div>
+            <div class="landing-card">
+              <h3>Characters and themes</h3>
+              <p>Pick a companion and change how the whole app looks.</p>
+            </div>
+          </div>
+        </section>
+
+        <section aria-labelledby="lp-price">
+          <h2 id="lp-price">Price</h2>
+          <div class="landing-card landing-price">
+            <!-- EDIT ME -->
+            <div class="big-price">
+              <span class="price-txt">$6.99</span> once
+            </div>
+            <p>
+              Try it free for 168 hours (7 days), counted from the day you sign
+              up. After that it's a one-time payment for permanent access. No
+              subscription.
+            </p>
+            <div class="row">
+              <button type="button" class="primary" data-landing="signup">
+                Start free trial
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <footer class="landing-footer">
+          <span>&copy; Aquestoria</span>
+          <!-- EDIT ME: add your contact email -->
+          <a href="privacy.html">Privacy policy</a>
+        </footer>
+      </div>
+    </div>
+
     <!-- ===== Account screens (shown only when config.js has Supabase keys) ===== -->
     <div
       id="auth-screen"
@@ -342,9 +473,9 @@
       <form id="auth-form" class="card gate-card">
         <h1 id="auth-title">Aquestoria</h1>
         <p class="sub">
-          Turn schoolwork into quests. <b>7 days of free use</b> (this is a
-          constant countdown, makethe most of it!), then a one-time
-          <b class="price-txt">$6.99</b> for permanent access.
+          Turn schoolwork into quests. <b>7 days of free use</b>, counted from
+          sign-up, then a one-time <b class="price-txt">$6.99</b> for permanent
+          access.
         </p>
         <div class="seg" role="group" aria-label="Sign up or log in">
           <button type="button" data-auth-tab="signup">Sign up</button
@@ -426,6 +557,9 @@
         </button>
         <button type="button" id="auth-forgot" class="linklike" hidden>
           Forgot password?
+        </button>
+        <button type="button" id="auth-back" class="linklike">
+          &larr; Back to home
         </button>
 
         <!-- Unlabeled Secret Developer Portal with Taller Box & Eye of Sauron -->

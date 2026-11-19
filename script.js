@@ -10,6 +10,35 @@
    To add a character or theme: add one line. `art` is an emoji placeholder
    (swap for an image later). A theme `id` must match a body[data-theme="id"]
    block in style.css. */
+/* ===================== ICONS (edit here) =====================
+   These replace the emojis. Each one is a small SVG drawn with the current text colour, so it follows your themes.
+   Use ic("sword") inside any template string. To swap one for your own art, change its entry below, for example:
+     sword: '<img class="ic" src="Assets/icons/sword.png" alt="">'
+   (character and theme pictures are separate: see `art` / `img` in CHARACTERS and THEMES). */
+const ICON_PATHS = {
+  sword:
+    '<path d="M20 4 10 14"/><path d="m7.5 12.5 4 4"/><path d="m9.5 14.5-4.5 4.5"/><path d="m4 20 1.5-1.5"/><path d="M20 4h-3.5M20 4v3.5"/>',
+  coin: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  warning:
+    '<path d="M12 3 2.5 20h19L12 3z"/><path d="M12 10v4"/><path d="M12 17h.01"/>',
+  scroll:
+    '<path d="M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M9 8h6M9 12h6M9 16h4"/>',
+  done: '<circle cx="12" cy="12" r="9"/><path d="m8 12.5 3 3 5-6"/>',
+};
+const ic = (name) =>
+  ICON_PATHS[name] && ICON_PATHS[name].startsWith("<img")
+    ? ICON_PATHS[name]
+    : `<svg class="ic ic-${name}" viewBox="0 0 24 24" aria-hidden="true">${ICON_PATHS[name] || ""}</svg>`;
+// Fills any <span data-ic="coin"></span> in index.html with that icon.
+const fillIcons = () =>
+  document
+    .querySelectorAll("[data-ic]")
+    .forEach((el) => (el.innerHTML = ic(el.dataset.ic)));
+if (document.readyState === "loading")
+  document.addEventListener("DOMContentLoaded", fillIcons);
+else fillIcons();
+
 /* ===================== CHARACTER SPEECH LINES (edit here) =====================
    Every character has a `speech` list. The dashboard shows ONE of these lines as the heading next to the
    character, and clicking the character shows the next line. Use {name} to insert the character's name.
@@ -230,7 +259,7 @@ function saveState() {
   if (!storageWorks && !storageWarned) {
     storageWarned = true;
     toast(
-      "⚠️ This browser is blocking saving, so your changes will be lost when you refresh. Open Aquestoria in Chrome or Edge instead.",
+      "This browser is blocking saving, so your changes will be lost when you refresh. Open Aquestoria in Chrome or Edge instead.",
     );
   }
 }
@@ -320,7 +349,7 @@ function completeQuest(id) {
   if (!q.rewardPaid) {
     q.rewardPaid = true;
     state.gold += q.reward;
-    toast(`✨ QUEST COMPLETE! 🪙 +${q.reward} ${CURRENCY}`);
+    toast(`Quest complete! +${q.reward} ${CURRENCY}`);
   } else {
     toast("Quest completed again – reward was already collected.");
   }
@@ -433,11 +462,11 @@ function questCard(q) {
         ? "archived"
         : "";
   return `<article class="card quest ${cls}">
-    <div class="course">⚔️ ${esc(courseLabel(q))} ${q.demo ? '<span class="badge">sample</span>' : ""}</div>
+    <div class="course">${ic("sword")} ${esc(courseLabel(q))} ${q.demo ? '<span class="badge">sample</span>' : ""}</div>
     <h3>${esc(q.name)}</h3>
-    <div>Due: ${prettyDate(q.due)}${q.time ? " · " + fmtTime(q.time) : ""} ${isOverdue(q) ? "⚠️ Overdue" : ""}</div>
+    <div>Due: ${prettyDate(q.due)}${q.time ? " · " + fmtTime(q.time) : ""} ${isOverdue(q) ? ic("warning") + " Overdue" : ""}</div>
     ${isPastImport(q) ? '<div class="past-note">Past date when imported · calendar only</div>' : ""}
-    <div title="Complete this quest to earn Gold, then spend it in the Shop">Reward: 🪙 ${q.reward} ${CURRENCY}</div>
+    <div title="Complete this quest to earn Gold, then spend it in the Shop">Reward: ${ic("coin")} ${q.reward} ${CURRENCY}</div>
     ${q.description ? `<p>${esc(q.description)}</p>` : ""}
     <div class="row">
       ${
@@ -486,10 +515,10 @@ function renderDashboard() {
       <h2>${speechFor(c)}</h2>
       <p class="sub">Finish your schoolwork, earn Gold, spend it in the Shop.</p></div></div>
     <div class="stats">
-      <div class="card stat" title="Earn Gold by completing quests. Spend it in the Shop on characters and themes."><span>🪙 ${state.gold}</span>Gold<small>Earned by finishing quests</small><button class="mini" data-view="shop">Spend in Shop</button></div>
-      <div class="card stat"><span>⚔️ ${dueToday.length}</span>Due today</div>
-      <div class="card stat ${overdue.length ? "bad" : ""}"><span>⚠️ ${overdue.length}</span>Overdue</div>
-      <div class="card stat"><span>✅ ${done.length}/${total}</span>Completed<div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div></div>
+      <div class="card stat" title="Earn Gold by completing quests. Spend it in the Shop on characters and themes."><span>${ic("coin")} ${state.gold}</span>Gold<small>Earned by finishing quests</small><button class="mini" data-view="shop">Spend in Shop</button></div>
+      <div class="card stat"><span>${ic("sword")} ${dueToday.length}</span>Due today</div>
+      <div class="card stat ${overdue.length ? "bad" : ""}"><span>${ic("warning")} ${overdue.length}</span>Overdue</div>
+      <div class="card stat"><span>${ic("done")} ${done.length}/${total}</span>Completed<div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div></div>
     </div>
     <div class="section-head"><h2>Needs attention</h2></div>
     ${cards([...overdue, ...dueToday], emptyState("All clear!", "Nothing is overdue or due today. Plan ahead, or spend some Gold in the Shop.", addBtns, false))}
@@ -533,9 +562,9 @@ function renderBoard() {
   $("view-board").innerHTML = `
     <div class="section-head"><div><h2>Quest Board</h2><p class="sub">Every assignment as a quest card.</p></div><button class="primary" data-act="new">+ New quest</button></div>
     <div class="board-range"><span>Showing quests due:</span><div class="seg" role="group" aria-label="Quest board range">${range}</div></div>
-    <h2>⚔️ Active quests</h2>${cards(active, emptyState("Nothing on the board", later ? `Nothing due in this window. ${later} later quest${later > 1 ? "s are" : " is"} hidden: try "All".` : "No active quests. Add an assignment or import a syllabus.", addBtns))}${active.length ? note(later, "later quest" + (later > 1 ? "s" : "")) : ""}
-    <h2>⚠️ Overdue quests</h2>${cards(overdue, emptyState("No overdue quests", "The dragon sleeps. Keep it that way!"))}
-    <h2>📜 Completed quests</h2>${cards(done, emptyState("No completed quests yet", "Finish a quest to earn Gold for the Shop."))}${done.length ? note(doneAll.length - done.length, "older completed quest" + (doneAll.length - done.length > 1 ? "s" : "")) : ""}`;
+    <h2>${ic("sword")} Active quests</h2>${cards(active, emptyState("Nothing on the board", later ? `Nothing due in this window. ${later} later quest${later > 1 ? "s are" : " is"} hidden: try "All".` : "No active quests. Add an assignment or import a syllabus.", addBtns))}${active.length ? note(later, "later quest" + (later > 1 ? "s" : "")) : ""}
+    <h2>${ic("warning")} Overdue quests</h2>${cards(overdue, emptyState("No overdue quests", "The dragon sleeps. Keep it that way!"))}
+    <h2>${ic("scroll")} Completed quests</h2>${cards(done, emptyState("No completed quests yet", "Finish a quest to earn Gold for the Shop."))}${done.length ? note(doneAll.length - done.length, "older completed quest" + (doneAll.length - done.length > 1 ? "s" : "")) : ""}`;
 }
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const addDays = (d, n) => {
@@ -572,22 +601,22 @@ function renderToday() {
       .filter((b) => b.date === iso)
       .map((b) => ({
         t: b.start,
-        html: `🕒 <b>${fmtTime(b.start)}</b> ${esc(b.title)}`,
+        html: `${ic("clock")} <b>${fmtTime(b.start)}</b> ${esc(b.title)}`,
       })),
     ...state.quests
       .filter((q) => q.due === iso && q.time)
       .map((q) => ({
         t: q.time,
-        html: `⚔️ <b>${fmtTime(q.time)}</b> ${esc(q.name)} <small>due</small>`,
+        html: `${ic("sword")} <b>${fmtTime(q.time)}</b> ${esc(q.name)} <small>due</small>`,
       })),
   ].sort((a, b) => a.t.localeCompare(b.t));
   const todo = (
     q,
   ) => `<div class="todo ${isOverdue(q) ? "overdue" : ""}"><button class="check" data-act="complete" data-id="${q.id}" aria-label="Complete ${esc(q.name)}" title="Complete quest (+${q.reward} Gold)">✔</button>
-    <div><b>${esc(q.name)}</b><br><small>${esc(courseLabel(q))} · ${isOverdue(q) ? "was due " + prettyDate(q.due) : q.time ? "due " + fmtTime(q.time) : "due today"} · 🪙 ${q.reward}</small></div></div>`;
+    <div><b>${esc(q.name)}</b><br><small>${esc(courseLabel(q))} · ${isOverdue(q) ? "was due " + prettyDate(q.due) : q.time ? "due " + fmtTime(q.time) : "due today"} · ${ic("coin")} ${q.reward}</small></div></div>`;
   const needs = [...overdue, ...dueToday];
   return `<div class="section-head"><h2>Today</h2><span>${new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}</span></div>
-    <div><span class="pill">⚔️ ${dueToday.length} due today</span><span class="pill ${overdue.length ? "bad" : ""}">⚠️ ${overdue.length} overdue</span><span class="pill">🕒 ${timed.length} timed</span></div>
+    <div><span class="pill">${ic("sword")} ${dueToday.length} due today</span><span class="pill ${overdue.length ? "bad" : ""}">${ic("warning")} ${overdue.length} overdue</span><span class="pill">${ic("clock")} ${timed.length} timed</span></div>
     ${needs.length ? `<div class="card"><h3>Needs doing</h3>${needs.map(todo).join("")}</div>` : emptyState("Nothing due or overdue", "A quiet day, adventurer. Get ahead on a quest or plan your hours.")}
     ${timed.length ? `<div class="card"><h3>Today's timed items</h3>${timed.map((x) => `<div class="agenda-line">${x.html}</div>`).join("")}</div>` : ""}
     <div class="row"><button class="primary" data-act="goday" data-date="${iso}">Plan today in Day view →</button></div>
@@ -666,10 +695,10 @@ function renderTimeline(iso) {
       pos = `top:${px(e.start)}px;height:${Math.max(26, px(end) - px(e.start) - 2)}px;left:${(e.col / e.cols) * 100}%;width:calc(${100 / e.cols}% - 4px)`;
     if (e.kind === "quest") {
       const q = e.q;
-      grid += `<button class="tl-ev quest ${q.completed ? "done" : isOverdue(q) ? "overdue" : isPastImport(q) ? "archived" : ""}" style="${pos}" data-act="detail" data-id="${q.id}"><b>⚔️ ${esc(q.name)}</b><br><small>Due ${fmtTime(q.time)} · ${esc(courseLabel(q))}</small></button>`;
+      grid += `<button class="tl-ev quest ${q.completed ? "done" : isOverdue(q) ? "overdue" : isPastImport(q) ? "archived" : ""}" style="${pos}" data-act="detail" data-id="${q.id}"><b>${ic("sword")} ${esc(q.name)}</b><br><small>Due ${fmtTime(q.time)} · ${esc(courseLabel(q))}</small></button>`;
     } else {
       const b = e.b;
-      grid += `<div class="tl-ev block" style="${pos}"><b>🕒 ${esc(b.title)}</b><br><small>${fmtTime(b.start)}${b.end ? " – " + fmtTime(b.end) : ""}</small><button class="mini" data-act="block-del" data-id="${b.id}" aria-label="Delete ${esc(b.title)}">✕</button></div>`;
+      grid += `<div class="tl-ev block" style="${pos}"><b>${ic("clock")} ${esc(b.title)}</b><br><small>${fmtTime(b.start)}${b.end ? " – " + fmtTime(b.end) : ""}</small><button class="mini" data-act="block-del" data-id="${b.id}" aria-label="Delete ${esc(b.title)}">✕</button></div>`;
     }
   });
   if (iso === today()) {
@@ -683,12 +712,12 @@ function renderTimeline(iso) {
     ? allDay
         .map(
           (q) =>
-            `<button class="allday-item ${q.completed ? "done" : isOverdue(q) ? "overdue" : isPastImport(q) ? "archived" : ""}" data-act="detail" data-id="${q.id}">⚔️ <b>${esc(q.name)}</b> <small>· ${esc(courseLabel(q))} · ${iso === today() ? "due today" : "due"}</small></button>`,
+            `<button class="allday-item ${q.completed ? "done" : isOverdue(q) ? "overdue" : isPastImport(q) ? "archived" : ""}" data-act="detail" data-id="${q.id}">${ic("sword")} <b>${esc(q.name)}</b> <small>· ${esc(courseLabel(q))} · ${iso === today() ? "due today" : "due"}</small></button>`,
         )
         .join("")
     : "<small>Nothing all-day.</small>";
   return `<div class="card tl-wrap">
-    <div class="tl-legend"><span>⚔️ <span class="swatch quest"></span> Quest due</span><span>🕒 <span class="swatch block"></span> Your time block</span><small>Click an empty hour to add a block.</small></div>
+    <div class="tl-legend"><span>${ic("sword")} <span class="swatch quest"></span> Quest due</span><span>${ic("clock")} <span class="swatch block"></span> Your time block</span><small>Click an empty hour to add a block.</small></div>
     <div class="tl-allday"><div class="hl">ALL DAY</div><div class="items">${allDayHTML}</div></div>
     <div class="tl" style="height:${(to - from) * HOUR_H}px">${grid}</div></div>`;
 }
@@ -771,12 +800,12 @@ function shopCard(kind, item) {
   else if (owned)
     button = `<button class="primary" data-act="equip" data-kind="${kind}" data-id="${item.id}">Equip</button>`;
   else
-    button = `<button class="primary" data-act="buy" data-kind="${kind}" data-id="${item.id}" ${state.gold < item.price ? "disabled" : ""}>Buy – 🪙 ${item.price}</button>`;
+    button = `<button class="primary" data-act="buy" data-kind="${kind}" data-id="${item.id}" ${state.gold < item.price ? "disabled" : ""}>Buy – ${ic("coin")} ${item.price}</button>`;
   const dots = item.swatch
     ? `<div class="dots" aria-hidden="true">${item.swatch.map((c) => `<i style="background:${c}"></i>`).join("")}</div>`
     : "";
   return `<div class="card item"><div class="art" style="min-height:132px;display:flex;align-items:center;justify-content:center">${artHTML(item, true)}</div><h3>${item.name}</h3>${dots}
-    <div>${item.free ? "Free" : owned ? "Owned" : `🪙 ${item.price} ${CURRENCY}${state.gold < item.price ? " (can't afford yet)" : ""}`}</div>
+    <div>${item.free ? "Free" : owned ? "Owned" : `${ic("coin")} ${item.price} ${CURRENCY}${state.gold < item.price ? " (can't afford yet)" : ""}`}</div>
     <div class="row">${button}</div></div>`;
 }
 function renderShop() {
@@ -805,7 +834,7 @@ function renderProfile() {
   $("view-profile").innerHTML =
     head("Collection", "Your customization and everything you own.") +
     `<div class="card"><h3>Your collection</h3>
-    <p>🪙 ${state.gold} ${CURRENCY}</p>
+    <p>${ic("coin")} ${state.gold} ${CURRENCY}</p>
     <p>Quests completed: ${state.quests.filter((q) => q.completed).length}</p>
     <p>Equipped character: ${c ? artHTML(c, "medium") + " " + c.name : "None"}</p>
     <p>Equipped theme: ${t ? artHTML(t) + " " + t.name : "Aquestoria Green (default)"}</p>

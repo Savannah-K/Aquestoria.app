@@ -1,0 +1,168 @@
+/* =====================================================================
+   LANDING PAGE STYLES  (the page people see before logging in)
+   The markup is in index.html inside  <div id="landing">  (search for "LANDING PAGE").
+   It uses your theme colours (--bg, --card, --ink, --accent, --line) so it matches the app.
+   ===================================================================== */
+.landing {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  overflow: auto;
+  background:
+    var(--bg-art, none) center/cover fixed,
+    var(--bg);
+  color: var(--page-ink);
+  font-family: var(--font-body);
+}
+.landing[hidden] {
+  display: none;
+}
+.landing a {
+  color: inherit;
+}
+.landing-wrap {
+  width: min(94vw, 960px);
+  margin: 0 auto;
+}
+.landing-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+.landing-logo {
+  color: var(--heading);
+  font-family: var(--font-title);
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+.landing-nav .row {
+  margin: 0;
+}
+/* Hero: a parchment card (brand "Card Background" #f6ecd2 with the gold "Borders / Frame" #c9a24b) holding the logo */
+.landing-hero {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  align-items: center;
+  gap: 2rem;
+  margin: 1rem 0 2rem;
+  padding: 2rem;
+  background: var(--card);
+  color: var(--ink);
+  border: 3px solid var(--trim);
+  border-radius: 12px;
+}
+.landing-logo-img {
+  display: block;
+  width: min(100%, 340px);
+  height: auto;
+  margin: 0 0 1.2rem;
+}
+.landing-hero h1 {
+  color: var(--accent);
+  font-family: var(--font-heading);
+  font-size: clamp(1.8rem, 4.5vw, 2.7rem);
+  line-height: 1.15;
+  margin: 0 0 0.8rem;
+}
+.landing-hero p {
+  font-size: 1.1rem;
+  line-height: 1.55;
+  margin: 0 0 1.5rem;
+  max-width: 32rem;
+}
+.landing-hero .row {
+  margin: 0;
+}
+.landing-hero-art {
+  display: block;
+  width: min(100%, 240px);
+  height: auto;
+  margin: 0 auto;
+}
+.landing section {
+  padding: 1.5rem 0;
+}
+.landing h2 {
+  color: var(--heading);
+  font-family: var(--font-title);
+  font-size: 1.7rem;
+  margin: 0 0 1rem;
+}
+.landing-steps,
+.landing-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1rem;
+}
+.landing-card {
+  background: var(--card);
+  color: var(--ink);
+  border: 2px solid var(--trim);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+}
+.landing-card h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1.1rem;
+}
+.landing-card p {
+  margin: 0;
+  line-height: 1.45;
+}
+.landing-price {
+  max-width: 34rem;
+}
+.landing-price .big-price {
+  font-family: var(--font-title);
+  font-size: 2.2rem;
+  font-weight: 700;
+}
+.landing-price .row {
+  margin-top: 1rem;
+}
+.landing-footer {
+  padding: 2rem 0 3rem;
+  font-size: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.2rem;
+  justify-content: space-between;
+  opacity: 0.9;
+}
+@media (max-width: 700px) {
+  .landing-hero {
+    grid-template-columns: 1fr;
+    padding: 1.4rem;
+    text-align: center;
+  }
+  .landing-logo-img,
+  .landing-hero p {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .landing-hero .row {
+    justify-content: center;
+  }
+  .landing-hero-art {
+    order: -1;
+    width: 120px;
+  }
+}
+
+/* Keep the top buttons on one line on phones */
+.landing-nav .row {
+  flex-wrap: nowrap;
+  gap: 0.4rem;
+}
+@media (max-width: 700px) {
+  .landing-logo {
+    font-size: 1.25rem;
+  }
+  .landing-nav button {
+    font-size: 0.85rem;
+    padding: 0.45em 0.7em;
+    white-space: nowrap;
+  }
+}

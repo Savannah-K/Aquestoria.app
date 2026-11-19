@@ -47,7 +47,10 @@ const Account = (() => {
   // ---------- screens ----------
   const setLocked = () => {
     // nothing behind a full-screen gate can be clicked or tabbed to
-    const on = !$("auth-screen").hidden || !$("paywall").hidden;
+    const on =
+      !$("auth-screen").hidden ||
+      !$("paywall").hidden ||
+      ($("landing") && !$("landing").hidden);
     [
       document.querySelector(".topbar"),
       document.querySelector("main"),
@@ -80,7 +83,24 @@ const Account = (() => {
         : "Password (8+ characters)";
     msg("");
   }
+  // ===================== LANDING PAGE (shown before login; markup is in index.html) =====================
+  function showLanding() {
+    $("auth-screen").hidden = true;
+    $("landing").hidden = false;
+    document.body.classList.remove("gating");
+    $("landing").scrollTop = 0;
+    setLocked();
+  }
+  function hideLanding() {
+    if ($("landing")) $("landing").hidden = true;
+  }
+  // Signed-out visitors land on the landing page first (falls back to the login screen if the page is missing).
+  function showEntry(m) {
+    if ($("landing")) showLanding();
+    else showAuth(m);
+  }
   function showAuth(m) {
+    hideLanding();
     setMode(m || mode);
     $("auth-screen").hidden = false;
     document.body.classList.remove("gating");
@@ -88,6 +108,7 @@ const Account = (() => {
     ($("auth-email-wrap").hidden ? $("auth-pass") : $("auth-email")).focus();
   }
   function hideAuth() {
+    hideLanding();
     $("auth-screen").hidden = true;
     setLocked();
   }
@@ -136,20 +157,20 @@ const Account = (() => {
   function renderStatus() {
     const btn = $("acct-btn");
     if (!user || !profile) {
-      btn.textContent = cloud ? "⚙ Account" : "⚙ Settings";
+      btn.textContent = cloud ? "Account" : "Settings";
       $("trial-banner").hidden = true;
       return;
     }
     const left = leftMs();
     btn.textContent = profile.paid
-      ? "👑 Unlocked"
+      ? "Unlocked"
       : hasAccess()
-        ? `⏳ ${fmtLeft(left)} left`
-        : "🔒 Trial ended";
+        ? `${fmtLeft(left)} left`
+        : "Trial ended";
     btn.classList.toggle("warn", !profile.paid && left < 864e5);
     $("acct-email").textContent = user.email;
     $("acct-status").textContent = profile.paid
-      ? "Unlocked forever. Thank you for supporting Aquestoria! 👑"
+      ? "Unlocked forever. Thank you for supporting Aquestoria!"
       : hasAccess()
         ? `Free trial: ${fmtLeft(left)} left. Your 168 free hours run continuously from sign-up and end on ${new Date(profile.trial_ends_at).toLocaleString()}. After that, a one-time ${price} unlocks it forever.`
         : `Your 168-hour free trial has ended. Unlock forever for a one-time ${price}.`;
@@ -342,7 +363,7 @@ const Account = (() => {
     if ($("account-dialog").open) $("account-dialog").close();
     $("paywall").hidden = true;
     $("auth-pass").value = "";
-    showAuth("login");
+    showEntry("login");
   }
   async function logout() {
     try {
@@ -379,7 +400,7 @@ const Account = (() => {
       if ((profile && profile.paid) || n > 60) {
         clearInterval(poll);
         if (profile && profile.paid)
-          toast("🎉 Aquestoria is unlocked forever. Thank you!");
+          toast("Aquestoria is unlocked forever. Thank you!");
       }
     }, 5000);
   }
@@ -478,7 +499,7 @@ const Account = (() => {
         input.value = "";
         out.textContent = "";
         await refreshProfile();
-        toast("🎉 Aquestoria is unlocked. Welcome!");
+        toast("Aquestoria is unlocked. Welcome!");
       } else {
         out.textContent =
           "That code didn't work. Check it for typos, or it may be used up or expired.";
@@ -632,9 +653,17 @@ const Account = (() => {
       .then(({ data }) => {
         if (data.session) {
           if (!user) signedIn(data.session.user);
-        } else showAuth("signup");
+        } else showEntry("signup");
       })
-      .catch(() => showAuth("login"));
+      .catch(() => showEntry("login"));
+
+    // Landing page buttons and the "Back to home" link on the login screen
+    document
+      .querySelectorAll("[data-landing]")
+      .forEach((b) =>
+        b.addEventListener("click", () => showAuth(b.dataset.landing)),
+      );
+    $("auth-back").addEventListener("click", () => showEntry());
 
     // Toggle Password Visibility Listener (Main Password)
     const togglePassBtn = $("toggle-pass-visibility");
