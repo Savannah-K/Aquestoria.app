@@ -664,6 +664,13 @@ const Account = (() => {
         b.addEventListener("click", () => showAuth(b.dataset.landing)),
       );
     $("auth-back").addEventListener("click", () => showEntry());
+    // Landing page nav: scroll to a section
+    document.querySelectorAll("[data-scroll]").forEach((b) =>
+      b.addEventListener("click", () => {
+        const t = $(b.dataset.scroll);
+        if (t) t.scrollIntoView({ behavior: "smooth", block: "start" });
+      }),
+    );
 
     // Toggle Password Visibility Listener (Main Password)
     const togglePassBtn = $("toggle-pass-visibility");

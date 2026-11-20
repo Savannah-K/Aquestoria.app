@@ -240,7 +240,59 @@
       <a href="privacy.html" style="color: inherit; text-decoration: underline"
         >Privacy Policy</a
       >
+      ·
+      <a
+        href="#"
+        data-feedback
+        onclick="return false;"
+        style="color: inherit; text-decoration: underline"
+        >Send feedback</a
+      >
     </footer>
+
+    <!-- ===== Feedback box (opened by any element with data-feedback). Delivered by Netlify Forms. ===== -->
+    <dialog id="feedback-dialog">
+      <form
+        id="feedback-form"
+        name="feedback"
+        method="POST"
+        data-netlify="true"
+        netlify-honeypot="bot-field"
+      >
+        <h2>Send feedback</h2>
+        <p>Found a bug, or want something added? Tell me here.</p>
+        <input type="hidden" name="form-name" value="feedback" />
+        <p hidden>
+          <label>Leave this empty: <input name="bot-field" /></label>
+        </p>
+        <label
+          >What is it?
+          <select name="kind">
+            <option>Something is broken</option>
+            <option>Idea or request</option>
+            <option>Something else</option>
+          </select></label
+        >
+        <label
+          >Your message
+          <textarea
+            name="message"
+            rows="5"
+            maxlength="2000"
+            required
+          ></textarea>
+        </label>
+        <label
+          >Your email (only if you want a reply)
+          <input type="email" name="email" autocomplete="email"
+        /></label>
+        <p id="fb-msg" role="status"></p>
+        <div class="row">
+          <button type="submit" class="primary" id="fb-send">Send</button
+          ><button type="button" id="fb-cancel">Cancel</button>
+        </div>
+      </form>
+    </dialog>
     <dialog id="block-dialog">
       <form id="block-form" method="dialog">
         <h2>New time block</h2>
@@ -339,27 +391,29 @@
          LANDING PAGE  (shown to visitors who aren't logged in; hidden in local mode)
          Everything marked EDIT ME is placeholder text for you to rewrite. Styles are in landing.css.
          Buttons with data-landing="signup" / "login" open the sign-up / log-in screen.
+         Elements with data-scroll="some-id" scroll to that section.
          ===================================================================== -->
     <div id="landing" class="landing" hidden>
-      <div class="landing-wrap">
-        <nav class="landing-nav" aria-label="Main">
-          <span class="landing-logo">Aquestoria</span>
-          <div class="row">
-            <button type="button" data-landing="login">Log in</button>
-            <button type="button" class="primary" data-landing="signup">
-              Start free trial
-            </button>
-          </div>
+      <div class="landing-frame">
+        <!-- Brand logo (transparent SVG, from your style guide). Files: Assets/logo-color.svg and Assets/logo-mono.svg -->
+        <img
+          class="landing-logo-img"
+          src="Assets/logo-color.svg"
+          alt="Aquestoria, a fantasy student planner"
+        />
+
+        <nav class="landing-pill" aria-label="Main">
+          <button type="button" data-scroll="lp-how">How it works</button>
+          <span class="orn" aria-hidden="true">&#10022;</span>
+          <button type="button" data-scroll="lp-features">What's inside</button>
+          <span class="orn" aria-hidden="true">&#10022;</span>
+          <button type="button" data-scroll="lp-price">Price</button>
+          <span class="orn" aria-hidden="true">&#10022;</span>
+          <button type="button" data-landing="login">Log in</button>
         </nav>
 
         <header class="landing-hero">
-          <div>
-            <!-- Brand logo (transparent SVG, from your style guide). Files: Assets/logo-color.svg and Assets/logo-mono.svg -->
-            <img
-              class="landing-logo-img"
-              src="Assets/logo-color.svg"
-              alt="Aquestoria, a fantasy student planner"
-            />
+          <div class="landing-hero-text">
             <!-- EDIT ME: headline and intro -->
             <h1>Turn your homework into quests</h1>
             <p>
@@ -375,38 +429,95 @@
               </button>
             </div>
           </div>
-          <!-- EDIT ME: swap this picture for a screenshot of the app if you like -->
-          <img
-            class="landing-hero-art"
-            src="Assets/jester-cat%20pfp.png"
-            alt="Jester Cat, one of the characters you can unlock"
-          />
+          <!-- A picture of what the app looks like (drawn in HTML/CSS, inspired by the calendar in your references).
+               EDIT ME: later you can replace this whole block with a real screenshot. -->
+          <div class="landing-preview">
+            <div class="lp-cal" aria-hidden="true">
+              <div class="lp-cal-title">Your month</div>
+              <div class="lp-cal-grid">
+                <span class="lp-cal-dow">MON</span
+                ><span class="lp-cal-dow">TUE</span
+                ><span class="lp-cal-dow">WED</span
+                ><span class="lp-cal-dow">THU</span
+                ><span class="lp-cal-dow">FRI</span
+                ><span class="lp-cal-dow">SAT</span
+                ><span class="lp-cal-dow">SUN</span>
+                <span class="lp-cal-cell">1</span
+                ><span class="lp-cal-cell">2</span
+                ><span class="lp-cal-cell">3</span
+                ><span class="lp-cal-cell">4<i></i></span
+                ><span class="lp-cal-cell">5</span
+                ><span class="lp-cal-cell lp-wknd">6</span
+                ><span class="lp-cal-cell lp-wknd">7</span
+                ><span class="lp-cal-cell">8</span
+                ><span class="lp-cal-cell">9<i></i></span
+                ><span class="lp-cal-cell">10</span
+                ><span class="lp-cal-cell">11</span
+                ><span class="lp-cal-cell lp-today">12</span
+                ><span class="lp-cal-cell lp-wknd">13</span
+                ><span class="lp-cal-cell lp-wknd">14</span
+                ><span class="lp-cal-cell">15</span
+                ><span class="lp-cal-cell">16<i></i></span
+                ><span class="lp-cal-cell">17</span
+                ><span class="lp-cal-cell">18<i></i></span
+                ><span class="lp-cal-cell">19</span
+                ><span class="lp-cal-cell lp-wknd">20</span
+                ><span class="lp-cal-cell lp-wknd">21</span
+                ><span class="lp-cal-cell">22</span
+                ><span class="lp-cal-cell">23</span
+                ><span class="lp-cal-cell">24</span
+                ><span class="lp-cal-cell">25<i></i></span
+                ><span class="lp-cal-cell">26</span
+                ><span class="lp-cal-cell lp-wknd">27</span
+                ><span class="lp-cal-cell lp-wknd">28</span
+                ><span class="lp-cal-cell">29</span
+                ><span class="lp-cal-cell">30</span
+                ><span class="lp-cal-cell">31</span
+                ><span class="lp-cal-cell lp-off"></span
+                ><span class="lp-cal-cell lp-off"></span
+                ><span class="lp-cal-cell lp-off"></span
+                ><span class="lp-cal-cell lp-off"></span>
+              </div>
+            </div>
+            <img
+              class="landing-hero-art"
+              src="Assets/jester-cat%20pfp.png"
+              alt="Jester Cat, one of the characters you can unlock"
+            />
+          </div>
         </header>
 
-        <section aria-labelledby="lp-how">
-          <h2 id="lp-how">How it works</h2>
+        <div class="lp-divider" aria-hidden="true"></div>
+
+        <section aria-labelledby="lp-how" id="lp-how">
+          <h2>How it works</h2>
           <div class="landing-steps">
             <!-- EDIT ME -->
             <div class="landing-card">
-              <h3>1. Add your assignments</h3>
+              <span class="lp-num" aria-hidden="true">1</span>
+              <h3>Add your assignments</h3>
               <p>
                 Type them in, or paste a syllabus and pick out the dates you
                 want.
               </p>
             </div>
             <div class="landing-card">
-              <h3>2. Finish quests</h3>
+              <span class="lp-num" aria-hidden="true">2</span>
+              <h3>Finish quests</h3>
               <p>Each assignment is a quest. Complete one and you get Gold.</p>
             </div>
             <div class="landing-card">
-              <h3>3. Spend your Gold</h3>
+              <span class="lp-num" aria-hidden="true">3</span>
+              <h3>Spend your Gold</h3>
               <p>Buy new characters and themes in the Shop.</p>
             </div>
           </div>
         </section>
 
-        <section aria-labelledby="lp-features">
-          <h2 id="lp-features">What's in it</h2>
+        <div class="lp-divider" aria-hidden="true"></div>
+
+        <section aria-labelledby="lp-features" id="lp-features">
+          <h2>What's inside</h2>
           <div class="landing-features">
             <!-- EDIT ME -->
             <div class="landing-card">
@@ -433,8 +544,10 @@
           </div>
         </section>
 
-        <section aria-labelledby="lp-price">
-          <h2 id="lp-price">Price</h2>
+        <div class="lp-divider" aria-hidden="true"></div>
+
+        <section aria-labelledby="lp-price" id="lp-price">
+          <h2>Price</h2>
           <div class="landing-card landing-price">
             <!-- EDIT ME -->
             <div class="big-price">
@@ -453,10 +566,12 @@
           </div>
         </section>
 
+        <div class="lp-divider" aria-hidden="true"></div>
+
         <footer class="landing-footer">
           <span>&copy; Aquestoria</span>
-          <!-- EDIT ME: add your contact email -->
           <a href="privacy.html">Privacy policy</a>
+          <a href="#" data-feedback onclick="return false;">Send feedback</a>
         </footer>
       </div>
     </div>

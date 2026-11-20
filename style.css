@@ -1474,3 +1474,194 @@ body[data-theme="library"] {
 .ic-warning {
   color: #b3261e;
 }
+
+/* =====================================================================================================
+   ART NOUVEAU SKIN  (the brand look applied to the rest of the app: calendar board, plaque titles,
+   pill nav, flourish under page headings, double-line cards). Safe to delete this whole block to undo it.
+   Calendar colours per theme are the --cal-* variables just below.
+   ===================================================================================================== */
+:root {
+  --cal-cell: #1d3f2d; /* day box */
+  --cal-ink: #f6ecd2; /* numbers and text in day boxes */
+  --cal-wknd: #4a4a26; /* weekend columns */
+  --cal-line: #cfe0c8aa; /* thin grid lines */
+  --cal-dow: #2f5d46; /* weekday header boxes and month plaque */
+  --cal-dow-ink: #f6ecd2;
+  --cal-hi: #e0bd62; /* today ring, plaque text */
+}
+body[data-theme="forest"] {
+  --cal-cell: #2c6a45;
+  --cal-ink: #eef7e6;
+  --cal-wknd: #4a6b2e;
+  --cal-line: #d3e8c8aa;
+  --cal-dow: #1f4e32;
+  --cal-dow-ink: #eef7e6;
+  --cal-hi: #f0d98a;
+}
+body[data-theme="castle"] {
+  --cal-cell: #2b3157;
+  --cal-ink: #eef0ff;
+  --cal-wknd: #4a4663;
+  --cal-line: #7b84c4aa;
+  --cal-dow: #f2c75c;
+  --cal-dow-ink: #232846;
+  --cal-hi: #f2c75c;
+}
+body[data-theme="mushroom"] {
+  --cal-cell: #7a2f38;
+  --cal-ink: #fdeeea;
+  --cal-wknd: #5e2a3c;
+  --cal-line: #f1c4beaa;
+  --cal-dow: #b4414a;
+  --cal-dow-ink: #fff;
+  --cal-hi: #ffd9d4;
+}
+body[data-theme="library"] {
+  --cal-cell: #5b3a1e;
+  --cal-ink: #f1e4cc;
+  --cal-wknd: #3f2a16;
+  --cal-line: #d9c3a0aa;
+  --cal-dow: #8a6a40;
+  --cal-dow-ink: #f1e4cc;
+  --cal-hi: #f1e4cc;
+}
+
+/* ----- calendar board (month and week views) ----- */
+.cal {
+  gap: 3px;
+}
+.cal .dow {
+  padding: 0.25rem 0;
+  background: var(--cal-dow);
+  color: var(--cal-dow-ink);
+  border: 1px solid var(--trim);
+  border-radius: 4px;
+  font-family: var(--font-heading);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+}
+.cal .day {
+  background: var(--cal-cell);
+  color: var(--cal-ink);
+  border: 1px solid var(--cal-line);
+  border-radius: 4px;
+}
+.cal .day:nth-child(7n + 1):not(.blank),
+.cal .day:nth-child(7n):not(.blank) {
+  background: var(--cal-wknd);
+}
+.cal .day.blank {
+  background: transparent;
+  border: 0;
+}
+.cal .day.today {
+  border: 1px solid var(--cal-hi);
+  outline: 2px solid var(--cal-hi);
+  outline-offset: -3px;
+}
+.cal .daynum {
+  color: var(--cal-ink);
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: 1.05rem;
+  text-decoration: none;
+}
+.cal .daynum:hover,
+.cal .daynum:focus-visible {
+  color: var(--cal-hi);
+  text-decoration: underline;
+}
+
+/* ----- plaque titles: month / week range and the day-view date ----- */
+#view-calendar .section-head h2,
+.cal-title {
+  margin: 0;
+  padding: 0.15rem 1.6rem;
+  text-align: center;
+  font-size: 1.5rem;
+  color: var(--cal-hi);
+  background: var(--cal-dow);
+  border: 2px solid var(--trim);
+  border-radius: 10px;
+  box-shadow:
+    inset 0 0 0 3px var(--cal-dow),
+    inset 0 0 0 4px color-mix(in srgb, var(--trim) 55%, transparent);
+}
+.cal-title {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0.6rem auto 0.8rem;
+}
+
+/* ----- top nav as a pill ----- */
+.topbar nav {
+  flex: 0 1 auto;
+  margin: 0 auto;
+  justify-content: center;
+  gap: 0.1rem 0.4rem;
+  padding: 0.25rem 0.7rem;
+  border: 2px solid var(--trim);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bar-accent) 12%, var(--bar));
+}
+.topbar nav button {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
+  font-family: var(--font-heading);
+  font-size: 1.02rem;
+}
+.topbar nav button:hover:not(.active) {
+  color: var(--bar-accent);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* ----- flourish under page headings (not the quest board, which has its own gold lines) ----- */
+.view:not(#view-board) > h2:not(.cal-title)::after {
+  content: "";
+  display: block;
+  width: 230px;
+  max-width: 100%;
+  height: 22px;
+  margin-top: 0.25rem;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 26' fill='none' stroke='%23c9a24b' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M4 13H78'/%3E%3Cpath d='M162 13H236'/%3E%3Cpath d='M78 13c8 0 10-8 18-8s6 6 3 6'/%3E%3Cpath d='M78 13c8 0 10 8 18 8s6-6 3-6'/%3E%3Cpath d='M162 13c-8 0-10-8-18-8s-6 6-3 6'/%3E%3Cpath d='M162 13c-8 0-10 8-18 8s-6-6-3-6'/%3E%3Cpath fill='%23c9a24b' stroke='none' d='M120 4l9 9-9 9-9-9z'/%3E%3C/svg%3E")
+    left center / contain no-repeat;
+}
+
+/* ----- cards and dialogs get the thin inner gold line (the "double border") ----- */
+.card {
+  box-shadow:
+    0 0 0 3px var(--bg),
+    0 0 0 4px var(--trim),
+    4px 6px 0 #0005,
+    inset 0 0 0 3px var(--card),
+    inset 0 0 0 4px color-mix(in srgb, var(--trim) 45%, transparent);
+}
+dialog {
+  border: 3px solid var(--trim);
+  box-shadow:
+    inset 0 0 0 4px var(--card),
+    inset 0 0 0 5px color-mix(in srgb, var(--trim) 55%, transparent);
+}
+
+/* ----- feedback dialog: dropdown matches the other form fields ----- */
+dialog select {
+  display: block;
+  width: 100%;
+  font: inherit;
+  padding: 0.4em;
+  margin-top: 0.2rem;
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: #222;
+}
+#fb-msg {
+  min-height: 1.4em;
+  margin: 0.4rem 0;
+}
+#fb-msg a {
+  color: var(--accent);
+  font-weight: 700;
+}

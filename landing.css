@@ -1,68 +1,119 @@
 /* =====================================================================
    LANDING PAGE STYLES  (the page people see before logging in)
-   The markup is in index.html inside  <div id="landing">  (search for "LANDING PAGE").
-   It uses your theme colours (--bg, --card, --ink, --accent, --line) so it matches the app.
+   Markup: index.html, inside  <div id="landing">  (search for "LANDING PAGE").
+   Look: one cream parchment page in a double gold frame on a dark green leaf-pattern background,
+   with a green pill nav, flourish dividers and a mini calendar picture. Brand colours from the style guide:
+   --bg #173325, --accent #2f5f46, --heading #e0bd62, --trim #c9a24b, --card #f6ecd2.
    ===================================================================== */
 .landing {
   position: fixed;
   inset: 0;
   z-index: 300;
   overflow: auto;
-  background:
-    var(--bg-art, none) center/cover fixed,
-    var(--bg);
-  color: var(--page-ink);
+  scroll-behavior: smooth;
+  padding: 1.5rem 0 2.5rem;
+  color: var(--ink);
   font-family: var(--font-body);
+  /* faint leaf pattern over the page background (original SVG, edit the colour/opacity in the rgba values) */
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140' fill='none' stroke='rgba(224,189,98,0.10)' stroke-width='1.5' stroke-linecap='round'%3E%3Cpath d='M22 62C22 36 40 20 64 20c0 26-18 42-42 42z'/%3E%3Cpath d='M26 58 56 28'/%3E%3Cpath d='M92 132c0-22 15-36 36-36 0 22-15 36-36 36z'/%3E%3Cpath d='M96 128l28-28'/%3E%3Ccircle cx='104' cy='34' r='3'/%3E%3Ccircle cx='36' cy='108' r='3'/%3E%3C/svg%3E"),
+    var(--bg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing {
+    scroll-behavior: auto;
+  }
 }
 .landing[hidden] {
   display: none;
 }
 .landing a {
-  color: inherit;
+  color: var(--accent);
 }
-.landing-wrap {
-  width: min(94vw, 960px);
+
+/* ---------- the framed parchment page ---------- */
+.landing-frame {
+  position: relative;
+  width: min(94vw, 980px);
   margin: 0 auto;
-}
-.landing-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem 0;
-}
-.landing-logo {
-  color: var(--heading);
-  font-family: var(--font-title);
-  font-size: 1.6rem;
-  font-weight: 700;
-}
-.landing-nav .row {
-  margin: 0;
-}
-/* Hero: a parchment card (brand "Card Background" #f6ecd2 with the gold "Borders / Frame" #c9a24b) holding the logo */
-.landing-hero {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr;
-  align-items: center;
-  gap: 2rem;
-  margin: 1rem 0 2rem;
-  padding: 2rem;
-  background: var(--card);
-  color: var(--ink);
+  padding: 2rem 2.2rem 1.5rem;
+  background-color: var(--card);
   border: 3px solid var(--trim);
-  border-radius: 12px;
+  border-radius: 20px;
+  /* thin inner gold line, like the double border in the references */
+  box-shadow:
+    inset 0 0 0 7px var(--card),
+    inset 0 0 0 8.5px var(--trim),
+    0 10px 30px #0006;
+  /* four gold sparkles in the corners */
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23c9a24b' d='M12 0c1 7 5 11 12 12-7 1-11 5-12 12-1-7-5-11-12-12 7-1 11-5 12-12z'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23c9a24b' d='M12 0c1 7 5 11 12 12-7 1-11 5-12 12-1-7-5-11-12-12 7-1 11-5 12-12z'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23c9a24b' d='M12 0c1 7 5 11 12 12-7 1-11 5-12 12-1-7-5-11-12-12 7-1 11-5 12-12z'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23c9a24b' d='M12 0c1 7 5 11 12 12-7 1-11 5-12 12-1-7-5-11-12-12 7-1 11-5 12-12z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: 22px 22px;
+  background-position:
+    14px 14px,
+    calc(100% - 14px) 14px,
+    14px calc(100% - 14px),
+    calc(100% - 14px) calc(100% - 14px);
 }
 .landing-logo-img {
   display: block;
-  width: min(100%, 340px);
+  width: min(80%, 360px);
   height: auto;
-  margin: 0 0 1.2rem;
+  margin: 0.5rem auto 1.2rem;
+}
+
+/* ---------- pill nav ---------- */
+.landing-pill {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem 0.9rem;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto 1.8rem;
+  padding: 0.5rem 1.6rem;
+  background: var(--accent);
+  border: 2px solid var(--trim);
+  border-radius: 999px;
+}
+.landing-pill button {
+  background: none;
+  border: 0;
+  box-shadow: none;
+  padding: 0.3rem 0.2rem;
+  color: var(--card);
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+.landing-pill button:hover,
+.landing-pill button:focus-visible {
+  color: var(--heading);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.landing-pill .orn {
+  color: var(--heading);
+  font-size: 0.8rem;
+}
+
+/* ---------- hero ---------- */
+.landing-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 2rem;
+  padding: 0.5rem 0 1rem;
 }
 .landing-hero h1 {
   color: var(--accent);
   font-family: var(--font-heading);
-  font-size: clamp(1.8rem, 4.5vw, 2.7rem);
+  font-size: clamp(1.9rem, 4.5vw, 2.8rem);
   line-height: 1.15;
   margin: 0 0 0.8rem;
 }
@@ -70,99 +121,200 @@
   font-size: 1.1rem;
   line-height: 1.55;
   margin: 0 0 1.5rem;
-  max-width: 32rem;
 }
 .landing-hero .row {
   margin: 0;
 }
-.landing-hero-art {
-  display: block;
-  width: min(100%, 240px);
-  height: auto;
-  margin: 0 auto;
+
+/* mini calendar picture (decorative) */
+.landing-preview {
+  position: relative;
+  padding-bottom: 1.5rem;
 }
+.lp-cal {
+  background: var(--bg);
+  border: 3px solid var(--trim);
+  border-radius: 12px;
+  padding: 0.7rem 0.7rem 0.8rem;
+  box-shadow: 0 4px 12px #0004;
+}
+.lp-cal-title {
+  text-align: center;
+  margin: 0 auto 0.6rem;
+  width: fit-content;
+  padding: 0.15rem 1.4rem;
+  color: var(--heading);
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  border: 2px solid var(--trim);
+  border-radius: 8px;
+  background: var(--accent);
+}
+.lp-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  background: #cfe0c8;
+  border: 2px solid #cfe0c8;
+}
+.lp-cal-dow,
+.lp-cal-cell {
+  position: relative;
+  text-align: center;
+  background: var(--accent);
+  color: var(--card);
+  font-family: var(--font-heading);
+}
+.lp-cal-dow {
+  padding: 0.2rem 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+}
+.lp-cal-cell {
+  background: #1d3f2d;
+  padding: 0.55rem 0 0.4rem;
+  font-size: 1rem;
+}
+.lp-cal-cell.lp-wknd {
+  background: #4a4a26;
+}
+.lp-cal-cell.lp-off {
+  background: #26452f;
+}
+.lp-cal-cell.lp-today {
+  outline: 2px solid var(--heading);
+  outline-offset: -2px;
+}
+.lp-cal-cell i {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--heading);
+}
+.landing-hero-art {
+  position: absolute;
+  right: -0.4rem;
+  bottom: -0.4rem;
+  width: 92px;
+  height: auto;
+}
+
+/* ---------- flourish divider (original SVG: gold lines, curls and a diamond) ---------- */
+.lp-divider {
+  height: 26px;
+  margin: 1.2rem auto;
+  max-width: 320px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 26' fill='none' stroke='%23c9a24b' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M4 13H78'/%3E%3Cpath d='M162 13H236'/%3E%3Cpath d='M78 13c8 0 10-8 18-8s6 6 3 6'/%3E%3Cpath d='M78 13c8 0 10 8 18 8s6-6 3-6'/%3E%3Cpath d='M162 13c-8 0-10-8-18-8s-6 6-3 6'/%3E%3Cpath d='M162 13c-8 0-10 8-18 8s-6-6-3-6'/%3E%3Cpath fill='%23c9a24b' stroke='none' d='M120 4l9 9-9 9-9-9z'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+
+/* ---------- sections and cards ---------- */
 .landing section {
-  padding: 1.5rem 0;
+  padding: 0.4rem 0;
 }
 .landing h2 {
-  color: var(--heading);
-  font-family: var(--font-title);
-  font-size: 1.7rem;
-  margin: 0 0 1rem;
+  color: var(--accent);
+  font-family: var(--font-heading);
+  font-size: 1.9rem;
+  text-align: center;
+  margin: 0 0 1.1rem;
 }
 .landing-steps,
 .landing-features {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
 }
 .landing-card {
-  background: var(--card);
+  position: relative;
+  background: #fbf4df;
   color: var(--ink);
   border: 2px solid var(--trim);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 1rem 1.1rem;
+  box-shadow:
+    inset 0 0 0 3px #fbf4df,
+    inset 0 0 0 4px #c9a24b66;
 }
 .landing-card h3 {
   margin: 0 0 0.4rem;
-  font-size: 1.1rem;
+  color: var(--accent);
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
 }
 .landing-card p {
   margin: 0;
-  line-height: 1.45;
+  line-height: 1.5;
+}
+.lp-num {
+  display: inline-grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  margin-bottom: 0.4rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--heading);
+  font-family: var(--font-heading);
+  border: 2px solid var(--trim);
 }
 .landing-price {
   max-width: 34rem;
+  margin: 0 auto;
+  text-align: center;
 }
 .landing-price .big-price {
-  font-family: var(--font-title);
-  font-size: 2.2rem;
-  font-weight: 700;
+  color: var(--accent);
+  font-family: var(--font-heading);
+  font-size: 2.4rem;
+  line-height: 1.2;
+}
+.landing-price p {
+  margin: 0.4rem 0 0;
 }
 .landing-price .row {
+  justify-content: center;
   margin-top: 1rem;
 }
 .landing-footer {
-  padding: 2rem 0 3rem;
-  font-size: 0.9rem;
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem 1.2rem;
-  justify-content: space-between;
-  opacity: 0.9;
+  justify-content: center;
+  padding: 0 0 0.8rem;
+  font-size: 0.9rem;
 }
-@media (max-width: 700px) {
+
+/* ---------- phones ---------- */
+@media (max-width: 760px) {
+  .landing {
+    padding-top: 0.8rem;
+  }
+  .landing-frame {
+    padding: 1.4rem 1.1rem 1rem;
+  }
   .landing-hero {
     grid-template-columns: 1fr;
-    padding: 1.4rem;
     text-align: center;
-  }
-  .landing-logo-img,
-  .landing-hero p {
-    margin-left: auto;
-    margin-right: auto;
   }
   .landing-hero .row {
     justify-content: center;
   }
+  .landing-pill {
+    gap: 0.1rem 0.7rem;
+    padding: 0.4rem 0.9rem;
+  }
+  .landing-pill .orn {
+    display: none; /* the little stars only show on wide screens, so they never wrap onto their own line */
+  }
+  .landing-pill button {
+    font-size: 0.88rem;
+    padding: 0.3rem 0.1rem;
+  }
   .landing-hero-art {
-    order: -1;
-    width: 120px;
-  }
-}
-
-/* Keep the top buttons on one line on phones */
-.landing-nav .row {
-  flex-wrap: nowrap;
-  gap: 0.4rem;
-}
-@media (max-width: 700px) {
-  .landing-logo {
-    font-size: 1.25rem;
-  }
-  .landing-nav button {
-    font-size: 0.85rem;
-    padding: 0.45em 0.7em;
-    white-space: nowrap;
+    width: 72px;
   }
 }

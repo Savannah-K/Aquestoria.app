@@ -17,7 +17,9 @@
    (character and theme pictures are separate: see `art` / `img` in CHARACTERS and THEMES). */
 const ICON_PATHS = {
   sword:
-    '<path d="M20 4 10 14"/><path d="m7.5 12.5 4 4"/><path d="m9.5 14.5-4.5 4.5"/><path d="m4 20 1.5-1.5"/><path d="M20 4h-3.5M20 4v3.5"/>',
+    '<path d="M20.5 3.5 9.85 15.85 8.15 14.15z"/><path d="m6.5 12.5 5 5"/><path d="M9 15 5.5 18.5"/><circle cx="4.5" cy="19.5" r="1"/>',
+  today:
+    '<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><circle cx="12" cy="15" r="1.7" fill="currentColor" stroke="none"/>',
   coin: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/>',
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   warning:
@@ -516,7 +518,7 @@ function renderDashboard() {
       <p class="sub">Finish your schoolwork, earn Gold, spend it in the Shop.</p></div></div>
     <div class="stats">
       <div class="card stat" title="Earn Gold by completing quests. Spend it in the Shop on characters and themes."><span>${ic("coin")} ${state.gold}</span>Gold<small>Earned by finishing quests</small><button class="mini" data-view="shop">Spend in Shop</button></div>
-      <div class="card stat"><span>${ic("sword")} ${dueToday.length}</span>Due today</div>
+      <div class="card stat"><span>${ic("today")} ${dueToday.length}</span>Due today</div>
       <div class="card stat ${overdue.length ? "bad" : ""}"><span>${ic("warning")} ${overdue.length}</span>Overdue</div>
       <div class="card stat"><span>${ic("done")} ${done.length}/${total}</span>Completed<div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div></div>
     </div>
@@ -616,7 +618,7 @@ function renderToday() {
     <div><b>${esc(q.name)}</b><br><small>${esc(courseLabel(q))} · ${isOverdue(q) ? "was due " + prettyDate(q.due) : q.time ? "due " + fmtTime(q.time) : "due today"} · ${ic("coin")} ${q.reward}</small></div></div>`;
   const needs = [...overdue, ...dueToday];
   return `<div class="section-head"><h2>Today</h2><span>${new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}</span></div>
-    <div><span class="pill">${ic("sword")} ${dueToday.length} due today</span><span class="pill ${overdue.length ? "bad" : ""}">${ic("warning")} ${overdue.length} overdue</span><span class="pill">${ic("clock")} ${timed.length} timed</span></div>
+    <div><span class="pill">${ic("today")} ${dueToday.length} due today</span><span class="pill ${overdue.length ? "bad" : ""}">${ic("warning")} ${overdue.length} overdue</span><span class="pill">${ic("clock")} ${timed.length} timed</span></div>
     ${needs.length ? `<div class="card"><h3>Needs doing</h3>${needs.map(todo).join("")}</div>` : emptyState("Nothing due or overdue", "A quiet day, adventurer. Get ahead on a quest or plan your hours.")}
     ${timed.length ? `<div class="card"><h3>Today's timed items</h3>${timed.map((x) => `<div class="agenda-line">${x.html}</div>`).join("")}</div>` : ""}
     <div class="row"><button class="primary" data-act="goday" data-date="${iso}">Plan today in Day view →</button></div>
@@ -1775,4 +1777,45 @@ document.addEventListener("click", (e) => {
     speechN++;
     renderDashboard();
   }
+});
+
+/* ===================== FEEDBACK BOX =====================
+   Footer link "Send feedback" opens #feedback-dialog (markup in index.html). On Netlify the form is delivered by
+   Netlify Forms (set the email notification in the Netlify dashboard: Forms > Notifications). If sending fails
+   (for example when testing on your own computer), the person gets a mailto link instead. */
+const FEEDBACK_EMAIL = "savannahk156@gmail.com";
+document.addEventListener("click", (e) => {
+  if (e.target.closest("[data-feedback]")) {
+    $("fb-msg").textContent = "";
+    $("feedback-dialog").showModal();
+  }
+  if (e.target.closest("#fb-cancel")) $("feedback-dialog").close();
+});
+document.addEventListener("submit", async (e) => {
+  if (e.target.id !== "feedback-form") return;
+  e.preventDefault();
+  const form = e.target,
+    msg = $("fb-msg"),
+    send = $("fb-send");
+  if (!form.message.value.trim()) {
+    msg.textContent = "Write a message first.";
+    return;
+  }
+  send.disabled = true;
+  msg.textContent = "Sending…";
+  try {
+    const res = await fetch("/", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(new FormData(form)).toString(),
+    });
+    if (!res.ok) throw new Error("send failed");
+    form.reset();
+    msg.textContent = "Thanks, it's sent.";
+    setTimeout(() => $("feedback-dialog").close(), 1400);
+  } catch (err) {
+    const body = encodeURIComponent(form.message.value);
+    msg.innerHTML = `Couldn't send it from here. <a href="mailto:${FEEDBACK_EMAIL}?subject=Aquestoria%20feedback&body=${body}">Email it instead</a>.`;
+  }
+  send.disabled = false;
 });
