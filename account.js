@@ -314,6 +314,9 @@ const Account = (() => {
   // ---------- usage meter: REMOVED ----------
   // The trial now runs on the clock (168 hours from sign-up), so nothing needs to be counted. heartbeat() is kept
   // as an empty function so the other places that call it keep working.
+  let lastActivity = Date.now(),
+    sessionActive = false,
+    hb = null; // still referenced by sign-in/sign-out code and the test helpers below
   async function heartbeat() {}
 
   // ---------- sign in / out ----------
@@ -365,13 +368,28 @@ const Account = (() => {
     $("auth-pass").value = "";
     showEntry("login");
   }
+  // Log out must never get stuck: try to save first (but give up after 2.5 seconds), then sign out, and if the
+  // network call fails, still clear the login on this device so the person is really logged out.
   async function logout() {
     try {
-      await flush();
+      await Promise.race([
+        flush(),
+        new Promise((resolve) => setTimeout(resolve, 2500)),
+      ]);
     } catch (e) {
-      /* ignore */
+      /* ignore: logging out matters more than one last save */
     }
-    await sb.auth.signOut();
+    try {
+      await sb.auth.signOut();
+    } catch (e) {
+      try {
+        await sb.auth.signOut({ scope: "local" });
+      } catch (e2) {
+        /* ignore */
+      }
+    }
+    // make sure the screen changes even if the sign-out event didn't fire
+    if (user) signedOut();
   }
 
   // ---------- payment ----------
